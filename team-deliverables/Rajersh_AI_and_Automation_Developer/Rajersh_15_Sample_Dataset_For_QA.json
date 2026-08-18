@@ -1,0 +1,37 @@
+{
+  "notifications": [
+    {"id": "n1", "source": "whatsapp", "sender": "Rohit", "text": "Can you send the report by Tuesday 6pm?"},
+    {"id": "n2", "source": "whatsapp", "sender": "Maa", "text": "Don't forget to pay the electricity bill tomorrow"},
+    {"id": "n3", "source": "email", "sender": "Prof. Mehta", "text": "Reminder: submit the OS assignment by Friday"},
+    {"id": "n4", "source": "shopping_app", "sender": null, "text": "MEGA SALE! 70% off on headphones today only"},
+    {"id": "n5", "source": "sms", "sender": "HDFC", "text": "Your OTP is 482913. Do not share it."},
+    {"id": "n6", "source": "slack", "sender": "Ananya", "text": "I'll review your PR by tonight"},
+    {"id": "n7", "source": "youtube", "sender": null, "text": "New video from a channel you subscribed to"},
+    {"id": "n8", "source": "whatsapp", "sender": "Gym Buddy", "text": "See you at the gym at 7am?"}
+  ],
+  "context_events": [
+    {"type": "bluetooth_connect", "value": "car", "ts": "2026-08-10T08:30:00"},
+    {"type": "open_app", "value": "maps", "ts": "2026-08-10T08:31:00"},
+    {"type": "play_music", "value": "drive mix", "ts": "2026-08-10T08:32:00"},
+    {"type": "bluetooth_connect", "value": "car", "ts": "2026-08-11T08:29:00"},
+    {"type": "open_app", "value": "maps", "ts": "2026-08-11T08:30:00"},
+    {"type": "play_music", "value": "drive mix", "ts": "2026-08-11T08:31:00"},
+    {"type": "bluetooth_connect", "value": "car", "ts": "2026-08-12T08:33:00"},
+    {"type": "open_app", "value": "maps", "ts": "2026-08-12T08:34:00"},
+    {"type": "play_music", "value": "drive mix", "ts": "2026-08-12T08:35:00"},
+    {"type": "bluetooth_connect", "value": "car", "ts": "2026-08-13T08:28:00"},
+    {"type": "open_app", "value": "maps", "ts": "2026-08-13T08:29:00"},
+    {"type": "play_music", "value": "drive mix", "ts": "2026-08-13T08:30:00"},
+    {"type": "location_enter", "value": "college", "ts": "2026-08-13T09:05:00"},
+    {"type": "silent_mode", "value": "on", "ts": "2026-08-13T09:06:00"}
+  ],
+  "calendar": [
+    {"title": "DSA Lecture", "start": "09:00", "end": "10:30"},
+    {"title": "Project Sync (Team EchoOS)", "start": "15:00", "end": "15:45"}
+  ],
+  "tasks": [
+    {"title": "Revise OS notes", "est_minutes": 60, "priority": 2},
+    {"title": "Fix Compose navigation bug", "est_minutes": 90, "priority": 1},
+    {"title": "Read ML paper", "est_minutes": 45, "priority": 3}
+  ]
+}

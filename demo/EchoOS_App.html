@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FBF7FF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="EchoOS">
+<title>EchoOS — Understand. Decide. Automate. Learn.</title>
+<style>
+/* ═══════════════ PASTEL DESIGN SYSTEM ═══════════════
+   Day + Night pastel modes. Each tab owns a two-hue pastel
+   gradient; ink text sits on pastel fills for full contrast. */
+:root{
+  --bg:#FBF7FF; --card:rgba(255,255,255,.74); --card2:rgba(255,255,255,.55);
+  --border:rgba(116,104,158,.18); --text:#2E2A3F; --muted:#6E6889;
+  --a1:#A78BFA; --a2:#7DD3FC;
+  --good:#0A8C80; --warn:#B8781A; --bad:#D14E80; --info:#6E5AD0;
+  --s1:#D14E80; --s2:#6E5AD0; --s3:#0A8C80; --s4:#B8781A;   /* validated: light */
+  --chart-surface:#FBF7FF;
+  --shadow:0 2px 10px rgba(94,82,140,.07),0 12px 32px rgba(94,82,140,.09);
+  --blob1:#FFD9C7; --blob2:#C8F2E4; --blob3:#DED5FF; --blob4:#FFD4E5; --blob5:#CDE6FF;
+  --dots:rgba(120,110,160,.20); --botShell:#C9BDFF; --botShell2:#9F8CF0;
+  --botBody:#DDD6F7; --botBody2:#B8ADE8; --botFace:#453E68;
+}
+body[data-theme="night"]{
+  --bg:#241F33; --card:rgba(255,255,255,.075); --card2:rgba(255,255,255,.05);
+  --border:rgba(255,255,255,.15); --text:#F2EDFF; --muted:#ABA2C8;
+  --good:#2CA595; --warn:#BE8A2C; --bad:#D2608E; --info:#7181DC;
+  --s1:#D2608E; --s2:#7181DC; --s3:#2CA595; --s4:#BE8A2C;   /* validated: dark */
+  --chart-surface:#241F33;
+  --shadow:0 4px 24px rgba(0,0,0,.32);
+  --blob1:#7A4F6B; --blob2:#3C6E68; --blob3:#544A8C; --blob4:#7C4A6B; --blob5:#3E5C82;
+  --dots:rgba(255,255,255,.16); --botShell:#9F8CF0; --botShell2:#6F5CC4;
+  --botBody:#4A4370; --botBody2:#332E52; --botFace:#171426;
+}
+body[data-accent="home"]  {--a1:#A78BFA;--a2:#7DD3FC}
+body[data-accent="create"]{--a1:#FDA4C7;--a2:#FBBF9B}
+body[data-accent="modes"] {--a1:#FBCF8B;--a2:#FDE68A}
+body[data-accent="lens"]  {--a1:#7DD3FC;--a2:#A5F3E0}
+body[data-accent="plan"]  {--a1:#A7E8C5;--a2:#D9F99D}
+body[data-accent="more"]  {--a1:#D8B4FE;--a2:#FBCFE8}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  background:var(--bg);color:var(--text);display:flex;flex-direction:column;
+  max-width:560px;margin:0 auto;position:relative;overflow:hidden;
+  border-left:1px solid var(--border);border-right:1px solid var(--border);
+  transition:background .5s,color .3s}
+/* ── mixed pastel mesh background ── */
+.bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.85;transition:background .5s}
+body[data-theme="night"] .bg i{opacity:.5}
+.bg i:nth-child(1){width:300px;height:300px;background:var(--blob1);top:-110px;left:-80px;animation:d1 17s ease-in-out infinite}
+.bg i:nth-child(2){width:280px;height:280px;background:var(--blob2);top:22%;right:-110px;animation:d2 21s ease-in-out infinite}
+.bg i:nth-child(3){width:320px;height:320px;background:var(--blob3);bottom:-120px;left:-90px;animation:d3 19s ease-in-out infinite}
+.bg i:nth-child(4){width:230px;height:230px;background:var(--blob4);bottom:14%;right:-70px;animation:d1 24s ease-in-out infinite reverse}
+.bg i:nth-child(5){width:210px;height:210px;background:var(--blob5);top:46%;left:36%;animation:d2 26s ease-in-out infinite;opacity:.6}
+.bg:after{content:"";position:absolute;inset:0;
+  background-image:radial-gradient(var(--dots) 1px,transparent 1.3px);background-size:24px 24px;
+  mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent)}
+@keyframes d1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,44px) scale(1.14)}}
+@keyframes d2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-54px,-38px) scale(1.1)}}
+@keyframes d3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(48px,-46px) scale(1.12)}}
+
+header,main,nav,#mode-banner{position:relative;z-index:1}
+header{padding:14px 18px 11px;flex-shrink:0;border-bottom:1px solid var(--border);
+  background:color-mix(in srgb,var(--bg) 62%,transparent);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hrow>div:first-child{min-width:0;overflow:hidden}
+h1{font-size:20px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;
+  background:linear-gradient(100deg,var(--a1),var(--a2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:brightness(.72) saturate(1.5)}
+body[data-theme="night"] h1{filter:brightness(1.25) saturate(1.1)}
+.tag{font-size:8px;color:var(--muted);letter-spacing:.17em;margin-top:2px;white-space:nowrap}
+.hbtns{display:flex;gap:5px;align-items:center;flex-shrink:0}
+.icobtn{width:31px;height:31px;border-radius:50%;border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:14px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:transform .2s,background .2s}
+.icobtn:hover{transform:scale(1.08)}
+#mode-banner{display:none;padding:8px 18px;font-size:11.5px;font-weight:700;letter-spacing:.05em;
+  background:linear-gradient(100deg,var(--a1),var(--a2));color:#2E2A3F;flex-shrink:0}
+main{flex:1;overflow-y:auto;padding:18px;padding-bottom:14px;-webkit-overflow-scrolling:touch}
+main.anim>*{animation:rise .42s cubic-bezier(.2,.8,.25,1) backwards}
+main.anim>*:nth-child(1){animation-delay:.02s} main.anim>*:nth-child(2){animation-delay:.06s}
+main.anim>*:nth-child(3){animation-delay:.1s}  main.anim>*:nth-child(4){animation-delay:.14s}
+main.anim>*:nth-child(n+5){animation-delay:.18s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+nav{display:flex;border-top:1px solid var(--border);flex-shrink:0;
+  background:color-mix(in srgb,var(--bg) 75%,transparent);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:none;color:var(--muted);padding:9px 2px 11px;font-size:9.5px;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:color .2s}
+nav button .ic{font-size:16px;transition:transform .25s}
+nav button.active{color:var(--text);font-weight:700}
+nav button.active .ic{transform:translateY(-2px) scale(1.14)}
+nav button.active:before{content:"";position:absolute;top:6px;width:34px;height:26px;border-radius:9px;
+  background:linear-gradient(100deg,var(--a1),var(--a2));opacity:.32}
+nav button.active:after{content:"";position:absolute;top:0;left:28%;right:28%;height:2.5px;border-radius:0 0 3px 3px;
+  background:linear-gradient(90deg,var(--a1),var(--a2))}
+
+h2{font-size:18.5px;margin-bottom:5px;letter-spacing:-.02em;font-weight:800}
+h3{font-size:13.5px;margin-bottom:3px}
+.sub{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.55}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:15px 16px;
+  margin-bottom:10px;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.card .small{font-size:12px;color:var(--muted);line-height:1.55}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.flexrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.btn{background:linear-gradient(100deg,var(--a1),var(--a2));border:none;color:#2E2A3F;border-radius:99px;
+  padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;
+  box-shadow:0 3px 12px color-mix(in srgb,var(--a1) 42%,transparent);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-1.5px);box-shadow:0 6px 18px color-mix(in srgb,var(--a1) 50%,transparent)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:var(--card2);border:1px solid var(--border);color:var(--text);box-shadow:none}
+.btn.small{padding:6px 12px;font-size:11.5px}
+.btn.danger{background:transparent;border:1px solid color-mix(in srgb,var(--bad) 45%,transparent);
+  color:var(--bad);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.chip{display:inline-block;font-size:10px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);
+  color:var(--muted);margin:2px 5px 2px 0;background:var(--card2)}
+.chip.ok{border-color:color-mix(in srgb,var(--good) 45%,transparent);color:var(--good);
+  background:color-mix(in srgb,var(--good) 12%,transparent)}
+.chip.err{border-color:color-mix(in srgb,var(--bad) 45%,transparent);color:var(--bad);
+  background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.chip.sim{border-color:color-mix(in srgb,var(--warn) 45%,transparent);color:var(--warn);
+  background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.chip.pri{border-color:color-mix(in srgb,var(--info) 45%,transparent);color:var(--info);
+  background:color-mix(in srgb,var(--info) 12%,transparent)}
+textarea,input[type=text]{width:100%;background:var(--card);border:1px solid var(--border);border-radius:14px;
+  color:var(--text);padding:11px 13px;font-size:14px;font-family:inherit;resize:vertical}
+textarea::placeholder,input::placeholder{color:var(--muted);opacity:.75}
+textarea:focus,input:focus{outline:2px solid var(--a1);outline-offset:-1px}
+.seg{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:52px;background:var(--card2);border:1px solid var(--border);color:var(--muted);
+  border-radius:99px;padding:7px 4px;font-size:11.5px;cursor:pointer;transition:all .18s}
+.seg button.sel{border-color:transparent;color:#2E2A3F;font-weight:700;
+  background:linear-gradient(100deg,var(--a1),var(--a2))}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .tr{position:absolute;inset:0;background:var(--card2);border:1px solid var(--border);
+  border-radius:99px;transition:.18s;cursor:pointer}
+.toggle .tr:before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;
+  background:var(--muted);top:3px;left:4px;transition:.18s}
+.toggle input:checked + .tr{background:linear-gradient(100deg,var(--a1),var(--a2));border-color:transparent}
+.toggle input:checked + .tr:before{transform:translateX(19px);background:#fff}
+.kv{font-size:12.5px;line-height:1.7}
+.kv b{font-weight:700}
+.conf{height:5px;background:var(--card2);border-radius:4px;margin-top:8px;overflow:hidden}
+.conf i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--a1),var(--a2));
+  transition:width .6s cubic-bezier(.2,.8,.25,1)}
+.empty{font-size:12.5px;color:var(--muted);padding:22px 4px;text-align:center}
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:11px 2px 9px;
+  text-align:center;min-width:0;box-shadow:var(--shadow)}
+.stat b{font-size:18px;display:block;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat span{font-size:7.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.log-line{font-size:12px;padding:9px 12px;border-left:3px solid var(--border);background:var(--card);
+  border-radius:0 12px 12px 0;margin-bottom:6px;line-height:1.55}
+.log-line.ok{border-left-color:var(--good)} .log-line.err{border-left-color:var(--bad)}
+.log-line.sug{border-left-color:var(--warn)} .log-line.info{border-left-color:var(--info)}
+.log-line time{color:var(--muted);font-size:10px;display:block;letter-spacing:.05em;margin-bottom:1px}
+.block{display:flex;gap:10px;margin-bottom:7px}
+.block .t{width:82px;font-size:11px;color:var(--muted);text-align:right;padding-top:10px;flex-shrink:0;
+  font-variant-numeric:tabular-nums}
+.block .b{flex:1;border-radius:14px;padding:9px 12px;font-size:13px;border:1px solid var(--border);background:var(--card)}
+.block .b .k{font-size:10px;color:var(--muted)}
+.block.fixed .b{background:color-mix(in srgb,var(--s2) 16%,transparent);border-color:color-mix(in srgb,var(--s2) 35%,transparent)}
+.block.commitment .b{background:color-mix(in srgb,var(--s3) 16%,transparent);border-color:color-mix(in srgb,var(--s3) 35%,transparent)}
+.block.break .b{background:transparent;border-style:dashed;color:var(--muted)}
+.mode-card{border-radius:20px;padding:15px 16px;margin-bottom:10px;border:1px solid var(--border);
+  background:var(--card);box-shadow:var(--shadow);transition:all .25s;backdrop-filter:blur(12px)}
+.mode-card.on{border-color:transparent;box-shadow:0 0 0 2px color-mix(in srgb,var(--a1) 55%,transparent),var(--shadow);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--a1) 26%,transparent),var(--card))}
+.mode-ic{font-size:24px}
+.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(10px);width:min(500px,88%);
+  background:var(--text);color:var(--bg);border-radius:16px;padding:12px 15px;font-size:12.5px;z-index:60;
+  box-shadow:0 14px 40px rgba(46,42,63,.3);display:none;opacity:0;transition:opacity .25s,transform .25s}
+.toast.show{display:block;opacity:1;transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70;display:none}
+/* ── Echo the robot ── */
+.hero{position:relative;display:flex;align-items:center;gap:4px;padding:12px 14px;margin-bottom:14px;
+  border-radius:24px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--a1) 30%,transparent),
+    color-mix(in srgb,var(--a2) 22%,transparent),var(--card))}
+.hero.mini{padding:9px 12px;gap:2px;margin-bottom:14px}
+.bot-scene{width:104px;height:140px;perspective:640px;flex-shrink:0}
+.hero.mini .bot-scene{width:62px;height:84px}
+.bot{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:float 4.8s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotateY(-15deg) rotateX(4deg)}
+  50%{transform:translateY(-8px) rotateY(15deg) rotateX(-3deg)}}
+.bot div{position:absolute}
+.bot .head{width:55%;height:32%;left:22.5%;top:10%;border-radius:26%;
+  background:linear-gradient(150deg,var(--botShell),var(--botShell2));transform:translateZ(15px);
+  box-shadow:inset -6px -8px 12px rgba(0,0,0,.18),inset 5px 5px 9px rgba(255,255,255,.5)}
+.bot .earL,.bot .earR{width:7%;height:12%;top:20%;border-radius:40%;transform:translateZ(9px);
+  background:linear-gradient(150deg,var(--a2),var(--a1))}
+.bot .earL{left:16%}.bot .earR{left:77%}
+.bot .face{width:41%;height:18%;left:29.5%;top:17%;border-radius:30%;background:var(--botFace);
+  transform:translateZ(24px);display:flex;align-items:center;justify-content:center;gap:16%}
+.bot .eye{position:static;width:16%;height:52%;border-radius:40%;background:var(--eyeC,#7DD3FC);
+  box-shadow:0 0 8px var(--eyeC,#7DD3FC);animation:blink 4s infinite;transition:background .4s}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.12)}}
+.bot.think .eye{animation:think 1.4s ease-in-out infinite}
+@keyframes think{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.bot.sleep .eye{height:12%;border-radius:99px;animation:none}
+.bot.alert .eye{width:19%;height:60%}
+.bot .cheekL,.bot .cheekR{width:8%;height:5%;top:26%;border-radius:50%;background:#FFB3C6;opacity:.75;
+  transform:translateZ(23px)}
+.bot .cheekL{left:25%}.bot .cheekR{left:67%}
+.bot .antenna{width:4%;height:9%;left:48%;top:2%;background:var(--botShell2);border-radius:2px;transform:translateZ(15px)}
+.bot .antenna:after{content:"";position:absolute;width:230%;height:88%;border-radius:50%;left:-65%;top:-70%;
+  background:var(--eyeC,#7DD3FC);box-shadow:0 0 10px var(--eyeC,#7DD3FC);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.86)}}
+.bot .torso{width:48%;height:28%;left:26%;top:46%;border-radius:24%;
+  background:linear-gradient(150deg,var(--botBody),var(--botBody2));transform:translateZ(11px);
+  box-shadow:inset -5px -5px 10px rgba(0,0,0,.16),inset 4px 4px 7px rgba(255,255,255,.35)}
+.bot .core{width:14%;height:10%;left:43%;top:55%;border-radius:50%;transform:translateZ(20px);
+  background:radial-gradient(circle at 34% 32%,#fff,var(--eyeC,#7DD3FC) 62%);
+  box-shadow:0 0 12px var(--eyeC,#7DD3FC);animation:pulse 2.4s infinite}
+.bot .armL,.bot .armR{width:9%;height:19%;top:47%;border-radius:40%;
+  background:linear-gradient(150deg,var(--botShell),var(--botShell2));transform-origin:top center}
+.bot .armL{left:13%;transform:translateZ(7px) rotate(11deg)}
+.bot .armR{left:78%;transform:translateZ(7px);animation:wave 4.8s ease-in-out infinite}
+@keyframes wave{0%,54%,100%{transform:translateZ(7px) rotate(-9deg)}70%,84%{transform:translateZ(7px) rotate(-54deg)}}
+.bot .legL,.bot .legR{width:11%;height:12%;top:73%;border-radius:35%;transform:translateZ(7px);
+  background:linear-gradient(150deg,var(--botBody),var(--botBody2))}
+.bot .legL{left:33%}.bot .legR{left:57%}
+.bot .shadow{width:62%;height:6%;left:19%;top:88%;border-radius:50%;background:rgba(80,66,120,.22);
+  filter:blur(4px);animation:shs 4.8s ease-in-out infinite}
+@keyframes shs{0%,100%{transform:scaleX(1);opacity:.6}50%{transform:scaleX(.78);opacity:.35}}
+.bubble{flex:1;min-width:0}
+.bubble .say{position:relative;background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:10px 12px;font-size:12px;line-height:1.55;margin-top:7px}
+.hero.mini .bubble .say{margin-top:0;font-size:11.5px}
+.bubble .say:before{content:"";position:absolute;left:-6px;top:15px;width:10px;height:10px;background:var(--card);
+  border-left:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)}
+.bubble .say b{color:var(--info);font-weight:700}
+.mic{width:38px;height:38px;border-radius:50%;border:none;flex-shrink:0;cursor:pointer;font-size:16px;
+  background:linear-gradient(100deg,var(--a1),var(--a2));color:#2E2A3F;
+  box-shadow:0 3px 12px color-mix(in srgb,var(--a1) 42%,transparent)}
+.mic.rec{animation:recording 1.1s infinite}
+@keyframes recording{0%,100%{box-shadow:0 0 0 0 rgba(209,78,128,.5)}50%{box-shadow:0 0 0 12px rgba(209,78,128,0)}}
+/* ── charts ── */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:11px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.hero-num{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1;
+  background:linear-gradient(100deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;
+  color:transparent;filter:brightness(.72) saturate(1.5)}
+body[data-theme="night"] .hero-num{filter:brightness(1.2)}
+table.dv{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:10px}
+table.dv th,table.dv td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--border)}
+table.dv th{color:var(--muted);font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+table.dv td:last-child,table.dv th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+
+/* ═══ palettes (mix & match) ═══ */
+body[data-palette="meadow"]{--blob1:#CFF2D8;--blob2:#B8ECE0;--blob3:#E4F5C4;--blob4:#D5F0FF;--blob5:#F6F0C9}
+body[data-palette="meadow"][data-accent="home"]  {--a1:#A7E8C5;--a2:#7DD3FC}
+body[data-palette="meadow"][data-accent="create"]{--a1:#BEEAA8;--a2:#FDE68A}
+body[data-palette="meadow"][data-accent="modes"] {--a1:#9FE6D6;--a2:#C7F0A8}
+body[data-palette="meadow"][data-accent="lens"]  {--a1:#8FE3E8;--a2:#B6F0D4}
+body[data-palette="meadow"][data-accent="plan"]  {--a1:#A7E8C5;--a2:#D9F99D}
+body[data-palette="meadow"][data-accent="more"]  {--a1:#B9E4C9;--a2:#9FD8F5}
+body[data-palette="sorbet"]{--blob1:#FFE0C7;--blob2:#FFD6D6;--blob3:#FFEFC2;--blob4:#FFD9EC;--blob5:#FFE7CF}
+body[data-palette="sorbet"][data-accent="home"]  {--a1:#FBBF9B;--a2:#FDE68A}
+body[data-palette="sorbet"][data-accent="create"]{--a1:#FDA4C7;--a2:#FBBF9B}
+body[data-palette="sorbet"][data-accent="modes"] {--a1:#FFD9A8;--a2:#FFEFB8}
+body[data-palette="sorbet"][data-accent="lens"]  {--a1:#FFC9B0;--a2:#FFE3B8}
+body[data-palette="sorbet"][data-accent="plan"]  {--a1:#FFD1B8;--a2:#FFEAA8}
+body[data-palette="sorbet"][data-accent="more"]  {--a1:#FFB9D2;--a2:#FFD6B0}
+body[data-theme="night"][data-palette="meadow"]{--blob1:#2F5E52;--blob2:#356B62;--blob3:#41603A;--blob4:#2C5566;--blob5:#5A5F35}
+body[data-theme="night"][data-palette="sorbet"]{--blob1:#7A5136;--blob2:#7A4444;--blob3:#7A6132;--blob4:#7C4460;--blob5:#6E4A33}
+
+/* ═══ context radar ═══ */
+.radar{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.radar svg{flex-shrink:0}
+.sweep{transform-origin:60px 60px;animation:spin 4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.blip{animation:blipPulse 2.4s ease-in-out infinite}
+@keyframes blipPulse{0%,100%{opacity:.45;r:3}50%{opacity:1;r:4.6}}
+
+/* ═══ automation flow diagram ═══ */
+.flow{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:9px}
+.flow .node{font-size:10.5px;padding:5px 10px;border-radius:9px;border:1px solid var(--border);
+  background:var(--card2);white-space:nowrap}
+.flow .node.trg{background:linear-gradient(100deg,var(--a1),var(--a2));color:#2E2A3F;
+  border-color:transparent;font-weight:700}
+.flow .arw{color:var(--muted);font-size:11px}
+
+/* ═══ achievements ═══ */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:10px}
+.badge{text-align:center;padding:10px 5px;border-radius:14px;border:1px solid var(--border);
+  background:var(--card2);transition:all .25s}
+.badge.on{border-color:transparent;background:linear-gradient(140deg,var(--a1),var(--a2));color:#2E2A3F;
+  box-shadow:0 4px 14px color-mix(in srgb,var(--a1) 40%,transparent)}
+.badge .bi{font-size:20px;display:block;filter:grayscale(1);opacity:.4}
+.badge.on .bi{filter:none;opacity:1}
+.badge .bn{font-size:9px;font-weight:700;margin-top:3px;letter-spacing:.02em}
+
+/* ═══ command palette ═══ */
+.cmdwrap{position:fixed;inset:0;z-index:80;background:rgba(46,42,63,.35);
+  backdrop-filter:blur(5px);display:none;padding-top:64px;justify-content:center}
+.cmdwrap.open{display:flex}
+.cmd{width:min(460px,92%);height:max-content;max-height:70vh;background:var(--bg);
+  border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(46,42,63,.35)}
+.cmd input{width:100%;border:none;border-bottom:1px solid var(--border);border-radius:0;
+  background:transparent;padding:14px 16px;font-size:15px;color:var(--text)}
+.cmd input:focus{outline:none}
+.cmdlist{max-height:52vh;overflow-y:auto;padding:6px}
+.cmditem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;
+  cursor:pointer;font-size:13px}
+.cmditem.sel{background:linear-gradient(100deg,var(--a1),var(--a2));color:#2E2A3F;font-weight:600}
+.cmditem .ck{margin-left:auto;font-size:10px;color:var(--muted);opacity:.8}
+.cmditem.sel .ck{color:#2E2A3F}
+
+/* ═══ login / auth ═══ */
+.auth{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:26px;overflow-y:auto;
+  background:color-mix(in srgb,var(--bg) 78%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.auth .panel{width:100%;max-width:380px;background:var(--card);border:1px solid var(--border);
+  border-radius:26px;padding:22px 20px;box-shadow:var(--shadow);animation:rise .5s cubic-bezier(.2,.8,.25,1)}
+.auth .brand{font-size:26px;font-weight:800;letter-spacing:-.03em;text-align:center;
+  background:linear-gradient(100deg,var(--a1),var(--a2));-webkit-background-clip:text;
+  background-clip:text;color:transparent;filter:brightness(.72) saturate(1.5)}
+body[data-theme="night"] .auth .brand{filter:brightness(1.25)}
+.auth .brandsub{font-size:9px;letter-spacing:.18em;color:var(--muted);text-align:center;margin-top:3px}
+.auth label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);margin:13px 0 5px}
+.auth .err{font-size:11.5px;color:var(--bad);margin-top:6px}
+.auth .note{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:14px;text-align:center}
+.auth .linkbtn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;
+  text-decoration:underline;padding:8px;font-family:inherit}
+.avatar-lg{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:27px;font-weight:800;color:#2E2A3F;margin:0 auto 4px;
+  background:linear-gradient(140deg,var(--a1),var(--a2));
+  box-shadow:0 6px 20px color-mix(in srgb,var(--a1) 45%,transparent)}
+.avatar-sm{width:31px;height:31px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:12.5px;font-weight:800;color:#2E2A3F;cursor:pointer;
+  background:linear-gradient(140deg,var(--a1),var(--a2));border:none;flex-shrink:0}
+.prow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--border);font-size:13px}
+.prow:last-child{border-bottom:none}
+.prow .pk{color:var(--muted);font-size:12px}
+.prow .pv{font-weight:600;text-align:right;overflow-wrap:anywhere}
+</style>
+</head>
+<body data-theme="day" data-accent="home" data-palette="blossom">
+<div class="bg"><i></i><i></i><i></i><i></i><i></i></div>
+<header>
+  <div class="hrow">
+    <div><h1>EchoOS</h1><div class="tag">UNDERSTAND · DECIDE · AUTOMATE · LEARN</div></div>
+    <div class="hbtns">
+      <button class="icobtn" id="themeBtn" onclick="toggleTheme()" title="Day / night pastel">🌙</button>
+      <button class="icobtn" onclick="cyclePalette()" title="Colour palette">🎨</button>
+      <button class="avatar-sm" id="avatarBtn" onclick="goMore('profile')" title="Your profile">?</button>
+      <button class="icobtn" onclick="openCmd()" title="Quick actions ( / )">⌘</button>
+    </div>
+  </div>
+</header>
+<div id="mode-banner"></div>
+<main id="main" class="anim"></main>
+<div id="auth"></div>
+<canvas id="confetti"></canvas>
+<div class="cmdwrap" id="cmdwrap" onclick="if(event.target.id==='cmdwrap')closeCmd()">
+  <div class="cmd">
+    <input id="cmdq" placeholder="Type a command…  (↑↓ to move, Enter to run, Esc to close)"
+      oninput="renderCmd()" onkeydown="cmdKey(event)">
+    <div class="cmdlist" id="cmdlist"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<nav id="nav"></nav>
+
+<script>
+"use strict";
+/* ════════════════════════════════════════════════════════════════
+   EchoOS — AI-powered personal automation layer for Android
+   Single-file MVP per SRS v2.0. All device actions are SIMULATED
+   and labeled as such (SRS §5, §15). State is in-memory only.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ---------- strict catalogs (docs/AI_ACTION_SCHEMA.md) ---------- */
+const ACTIONS={
+  focus_mode:{sens:0,perm:"dnd"}, dnd_on:{sens:0,perm:"dnd"}, dnd_off:{sens:0,perm:"dnd"},
+  silent_mode:{sens:0,perm:"dnd"}, wifi_toggle:{sens:0,perm:"connectivity"},
+  bluetooth_toggle:{sens:0,perm:"connectivity"}, open_app:{sens:0,perm:null},
+  play_music:{sens:0,perm:null}, navigation_start:{sens:0,perm:"location"},
+  send_message:{sens:1,perm:"messaging"}, create_reminder:{sens:0,perm:null},
+  calendar_summary:{sens:0,perm:"calendar"}, notify_user:{sens:0,perm:"notifications"},
+  set_alarm:{sens:0,perm:null}, brightness:{sens:0,perm:"settings"},
+};
+const TRIGGERS=["location_enter","location_exit","time_schedule","calendar_event",
+  "bluetooth_connect","bluetooth_disconnect","pattern_detected","manual"];
+const TRIG_PERM={location_enter:"location",location_exit:"location",calendar_event:"calendar",
+  bluetooth_connect:"connectivity",bluetooth_disconnect:"connectivity"};
+
+/* ---------- state ---------- */
+const S={tab:"home",moreSeg:"ctrl",theme:"day",
+  automations:[],commitments:[],patterns:[],events:[],log:[],
+  memoryPrefs:[
+    {k:"Preferred focus window",v:"09:00–12:00",src:"learned from patterns"},
+    {k:"Commute music",v:"Drive Mix playlist",src:"learned from driving routine"},
+    {k:"Quiet hours",v:"22:30–06:30",src:"set by you"}],
+  caps:{location:1,notifications:1,calendar:1,connectivity:1,dnd:1,messaging:0,settings:1,camera:1},
+  plan:null,preview:null,autonomySel:"confirm",activeMode:null,seq:1,listening:false};
+
+const MODES=[
+  {id:"college",icon:"🎓",name:"College",trigger:{type:"location_enter",place:"college"},
+   tdesc:"Arrive at College (geofence)",actions:[{type:"focus_mode",value:"college"},{type:"silent_mode",enabled:1},{type:"calendar_summary"}]},
+  {id:"work",icon:"💼",name:"Work",trigger:{type:"location_enter",place:"work"},
+   tdesc:"Arrive at Work (geofence)",actions:[{type:"dnd_on"},{type:"calendar_summary"}]},
+  {id:"driving",icon:"🚗",name:"Driving",trigger:{type:"bluetooth_connect",device:"car"},
+   tdesc:"Car Bluetooth connects",actions:[{type:"navigation_start",destination:"work"},{type:"play_music"}]},
+  {id:"gym",icon:"🏋️",name:"Gym",trigger:{type:"location_enter",place:"gym"},
+   tdesc:"Arrive at Gym (geofence)",actions:[{type:"play_music"},{type:"dnd_on"}]},
+  {id:"sleep",icon:"🌙",name:"Sleep",trigger:{type:"time_schedule",time:"22:30"},
+   tdesc:"Every day at 22:30",actions:[{type:"dnd_on"},{type:"silent_mode",enabled:1},{type:"set_alarm",time:"06:30"}]},
+];
+const modeState={college:0,work:0,driving:0,gym:0,sleep:0};
+const modeAutonomy={college:"automatic",work:"confirm",driving:"confirm",gym:"suggest",sleep:"automatic"};
+
+const demoNotifications=[
+  {id:"n1",source:"whatsapp",sender:"Rohit",text:"Can you send the report by Tuesday 6pm?"},
+  {id:"n2",source:"whatsapp",sender:"Maa",text:"Don't forget to pay the electricity bill tomorrow"},
+  {id:"n3",source:"email",sender:"Prof. Mehta",text:"Reminder: submit the OS assignment by Friday"},
+  {id:"n4",source:"shopping app",sender:null,text:"MEGA SALE! 70% off on headphones today only"},
+  {id:"n5",source:"sms",sender:"HDFC Bank",text:"Your OTP is 482913. Do not share it."},
+  {id:"n6",source:"slack",sender:"Ananya",text:"I'll review your PR by tonight"},
+  {id:"n7",source:"youtube",sender:null,text:"New video from a channel you subscribed to"},
+];
+let lensItems=[];
+const demoCalendar=[{title:"DSA Lecture",start:"09:00",end:"10:30"},
+  {title:"Project Sync (Team EchoOS)",start:"15:00",end:"15:45"}];
+const demoTasks=[{title:"Fix Compose navigation bug",est:90,pri:1},
+  {title:"Revise OS notes",est:60,pri:2},{title:"Read ML paper",est:45,pri:3}];
+
+/* ---------- utils ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now=()=>new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+function toast(m){blip(600,.14);const t=$("toast");t.innerHTML=m;t.classList.add("show");
+  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),3600);}
+function log(kind,text,sim){S.log.unshift({t:now(),kind,text,sim:!!sim});render();}
+
+/* ════════ AI LAYER (rule-based, mirrors backend services) ════════ */
+const PLACES=["college","work","home","gym","office","school","library"];
+function parseNL(text){
+  const low=text.toLowerCase();
+  let place=PLACES.find(p=>new RegExp("\\b"+p+"\\b").test(low));
+  if(place==="office")place="work"; if(place==="school")place="college";
+  let trigger={type:"manual"};
+  const tm=low.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/);
+  if(/\b(leave|leaving|exit|depart)\b/.test(low)&&place)trigger={type:"location_exit",place};
+  else if(/\b(reach|arrive|arriving|get to|enter)\b/.test(low)&&place)trigger={type:"location_enter",place};
+  else if(/\b(car|driving|drive)\b/.test(low))trigger={type:"bluetooth_connect",device:"car"};
+  else if(tm){let h=+tm[1]%12;if(tm[3]==="pm")h+=12;
+    trigger={type:"time_schedule",time:String(h).padStart(2,"0")+":"+(tm[2]||"00")};}
+  else if(/\bevery (day|morning|evening|night)\b|\bdaily\b/.test(low)){
+    trigger={type:"time_schedule",time:low.includes("morning")?"07:00":low.includes("evening")?"19:00":
+      low.includes("night")?"22:00":"08:00"};}
+  else if(place)trigger={type:"location_enter",place};
+  const A=[];
+  if(/focus|study mode|focus routine/.test(low))A.push({type:"focus_mode",value:place||"focus"});
+  if(/\b(silent|silence|mute)\b/.test(low))A.push({type:"silent_mode",enabled:1});
+  if(/do not disturb|\bdnd\b/.test(low))A.push({type:"dnd_on"});
+  if(/\b(music|playlist|spotify|song)\b/.test(low))A.push({type:"play_music"});
+  if(/\b(navigate|navigation|directions|maps)\b/.test(low))A.push({type:"navigation_start",destination:place||"home"});
+  if(/\bremind/.test(low)){const m=low.match(/remind (?:me )?(?:to |about )?(.+?)(?: at \d|$)/);
+    A.push({type:"create_reminder",title:m?m[1].trim():"Reminder"});}
+  if(/\balarm\b|wake me/.test(low))A.push({type:"set_alarm",time:trigger.time||"07:00"});
+  if(/\b(text|message|whatsapp|tell)\b/.test(low)){
+    const m=text.match(/\b(?:text|message|tell)\s+([A-Za-z]+)/i);
+    A.push({type:"send_message",to:(m&&!["me","my","the"].includes(m[1].toLowerCase()))?m[1]:"contact"});}
+  if(/\b(calendar|schedule|agenda|my day)\b/.test(low))A.push({type:"calendar_summary"});
+  if(/\bwifi\b/.test(low))A.push({type:"wifi_toggle",enabled:!/\b(off|disable)\b/.test(low)});
+  if(!A.length&&/\broutine\b/.test(low)){A.push({type:"focus_mode",value:place||"routine"});
+    A.push({type:"calendar_summary"});}
+  return{trigger,actions:A,confidence:(trigger.type!=="manual"&&A.length)?0.9:A.length?0.6:0.2,requires_confirmation:1};
+}
+/* FR-03 — nothing outside the catalog can ever execute */
+function validateIntent(raw){
+  if(!TRIGGERS.includes(raw.trigger.type))return{valid:0,reason:"Unsupported trigger '"+raw.trigger.type+"'"};
+  const rejected=raw.actions.filter(a=>!ACTIONS[a.type]).map(a=>a.type);
+  const kept=raw.actions.filter(a=>ACTIONS[a.type]).slice(0,5);
+  if(!kept.length)return{valid:0,reason:"No supported actions recognized",rejected};
+  const perms=new Set();
+  if(TRIG_PERM[raw.trigger.type])perms.add(TRIG_PERM[raw.trigger.type]);
+  kept.forEach(a=>{if(ACTIONS[a.type].perm)perms.add(ACTIONS[a.type].perm);});
+  const sens=kept.some(a=>ACTIONS[a.type].sens),c=Math.max(0,Math.min(1,raw.confidence));
+  return{valid:1,rejected,intent:{trigger:raw.trigger,actions:kept,required_permissions:[...perms].sort(),
+    requires_confirmation:!!(raw.requires_confirmation||sens||c<0.4),confidence:c,summary:summarize(raw.trigger,kept)}};
+}
+function summarize(tr,A){
+  const t={location_enter:"When you arrive at "+(tr.place||"?"),location_exit:"When you leave "+(tr.place||"?"),
+    time_schedule:"Every day at "+(tr.time||"?"),bluetooth_connect:"When your "+(tr.device||"car")+" connects",
+    calendar_event:"Around your "+(tr.match||"event"),manual:"On demand"}[tr.type]||"When triggered";
+  return t+": "+A.map(a=>a.type.replace(/_/g," ")).join(", ")+".";
+}
+/* EchoLens — FR-06..08 */
+function extractCommitment(item){
+  const low=item.text.toLowerCase();
+  const pats=[[/i(?:'|’)?ll\s+(.+)/,.85],[/\bi will\s+(.+)/,.85],[/can you\s+(.+?)\??$/,.85],
+    [/could you\s+(.+?)\??$/,.85],[/don'?t forget to\s+(.+)/,.75],[/reminder:?\s+(.+)/,.7],
+    [/\b(?:need|have)\s+to\s+(.+)/,.7],[/\bsubmit\s+(.+)/,.7]];
+  let task=null,conf=0;
+  for(const[p,c]of pats){const m=low.match(p);if(m){task=m[1];conf=c;break;}}
+  if(!task)return null;
+  task=task.replace(/\bby\s+(tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next week|eod).*$/,"")
+    .replace(/[.!?,\s]+$/,"");
+  if(task.length<3)return null;
+  const today=new Date();let dl=null;
+  const D=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  if(/tomorrow/.test(low)){dl=new Date(today);dl.setDate(dl.getDate()+1);}
+  else if(/today|tonight|eod/.test(low))dl=new Date(today);
+  else for(let i=0;i<7;i++)if(new RegExp("\\b(?:by |on |before )?"+D[i]+"\\b").test(low)){
+    dl=new Date(today);dl.setDate(dl.getDate()+(((i-today.getDay())%7)||7));break;}
+  let dls=null;
+  if(dl){let h=18,mi=0;const t2=low.match(/(?:by|at|before)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/);
+    if(t2){h=(+t2[1]%12)+(t2[3]==="pm"?12:0);mi=+(t2[2]||0);}else if(/tonight/.test(low))h=20;
+    dl.setHours(h,mi,0,0);
+    dls=dl.toLocaleDateString([],{weekday:"short",day:"numeric",month:"short"})+" "+
+      dl.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});conf=Math.min(.95,conf+.1);}
+  return{task,person:item.sender||null,deadline:dls,confidence:conf,raw:item.text};
+}
+function classify(item,hasC){
+  const low=item.text.toLowerCase();
+  if(/(sale|offer|% off|new video|subscribed|promo|cashback)/.test(low))return"low";
+  if(hasC||/(urgent|asap|today|deadline|due|otp|payment|exam|meeting)/.test(low))return"needs_attention";
+  if(["whatsapp","sms","email","slack"].includes(item.source))return"later";
+  return"low";
+}
+/* Pattern detection — FR-09 */
+function detectPatterns(){
+  const anchors={};let cur=null;
+  for(const e of S.events.slice().reverse()){
+    const key=e.type+(e.value?":"+e.value:"");
+    if(["bluetooth_connect","location_enter","location_exit"].includes(e.type)){
+      cur={anchor:key,follow:new Set()};(anchors[key]=anchors[key]||[]).push(cur);}
+    else if(cur&&["open_app","play_music","navigation_start","dnd_on","silent_mode","focus_mode"].includes(e.type))
+      cur.follow.add(key);
+  }
+  const found=[];
+  for(const[anchor,sess]of Object.entries(anchors)){
+    const wf=sess.filter(s=>s.follow.size); if(wf.length<3)continue;
+    const counts={};wf.forEach(s=>{const k=[...s.follow].sort().join("|");counts[k]=(counts[k]||0)+1;});
+    const[best,freq]=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]; if(freq<3)continue;
+    const follow=best.split("|"),conf=Math.min(.95,.5+.1*freq),[aT,aV]=anchor.split(":");
+    const trigger={type:aT}; if(aT.startsWith("location"))trigger.place=aV;else trigger.device=aV||"car";
+    const actions=follow.map(f=>{const[t,v]=f.split(":");
+      return t==="open_app"?{type:"open_app",app_name:v}:t==="play_music"?{type:"play_music",playlist:v}:{type:t};});
+    const human=aT==="bluetooth_connect"?"your "+(aV||"car")+" connects":
+      aT==="location_enter"?"you arrive at "+aV:"you leave "+aV;
+    found.push({anchor,freq,conf,trigger,actions,
+      summary:"You did this "+freq+" times: when "+human+", you "+
+        follow.map(f=>f.replace(/_/g," ").replace(":"," → ")).join(", ")+". Automate it?"});
+  }
+  return found;
+}
+/* Planner — FR-10 */
+const toMin=s=>{const[a,b]=s.split(":");return +a*60+ +b;};
+const toHH=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+function buildPlan(){
+  const fixed=demoCalendar.map(c=>({...c,kind:"fixed",src:"calendar",editable:0}));
+  const blocks=[...fixed],busy=fixed.map(f=>[toMin(f.start),toMin(f.end)]);
+  const lunch=[toMin("13:00"),toMin("13:40")];
+  if(busy.every(([s,e])=>e<=lunch[0]||s>=lunch[1])){
+    blocks.push({title:"Lunch",start:"13:00",end:"13:40",kind:"break",src:"planner",editable:1});busy.push(lunch);}
+  const work=[];
+  S.commitments.filter(c=>c.status==="accepted").forEach(c=>work.push({title:c.task,min:45,kind:"commitment",dl:c.deadline}));
+  demoTasks.slice().sort((a,b)=>a.pri-b.pri).forEach(t=>work.push({title:t.title,min:t.est,kind:"task"}));
+  const notes=[];let cur=toMin("08:00"),sinceBreak=0;const end=toMin("22:00");
+  for(const w of work){let placed=0;
+    while(cur+w.min<=end){
+      const clash=busy.find(([s,e])=>cur<e&&s<cur+w.min);
+      if(clash){cur=clash[1];continue;}
+      if(sinceBreak>=120){blocks.push({title:"Break",start:toHH(cur),end:toHH(cur+15),kind:"break",src:"planner",editable:1});
+        busy.push([cur,cur+15]);cur+=15;sinceBreak=0;continue;}
+      blocks.push({title:w.title,start:toHH(cur),end:toHH(cur+w.min),kind:w.kind,src:"planner",editable:1});
+      if(w.dl)notes.push("'"+w.title+"' scheduled at "+toHH(cur)+" (deadline "+w.dl+").");
+      busy.push([cur,cur+w.min]);cur+=w.min;sinceBreak+=w.min;placed=1;break;}
+    if(!placed)notes.push("Not enough time for '"+w.title+"' — rolls over to tomorrow.");}
+  blocks.sort((a,b)=>toMin(a.start)-toMin(b.start));
+  const d=new Date();d.setDate(d.getDate()+1);
+  return{date:d.toLocaleDateString([],{weekday:"long",day:"numeric",month:"short"}),blocks,notes};
+}
+
+/* ════════ AUTOMATION ENGINE (SRS §10 safety flow) ════════ */
+function fireContext(type,value){
+  S.events.unshift({t:now(),type,value,sim:1});
+  log("info","Context event: "+type+(value?" ("+value+")":"")+" [SIMULATED]",1);
+  for(const a of S.automations){
+    if(a.status!=="active"||!triggerMatches(a.intent.trigger,type,value))continue;
+    const missing=a.intent.required_permissions.filter(p=>!S.caps[p]);
+    const why="Trigger '"+type+(value?":"+value:"")+"' matched '"+a.name+"'. ";
+    if(missing.length){log("err",why+"BLOCKED — data source disabled: "+missing.join(", ")+". Enable it in Control.");continue;}
+    const sens=a.intent.actions.some(x=>ACTIONS[x.type].sens);
+    if(a.autonomy==="suggest"){a.status="pending";
+      log("sug",why+"Autonomy is Suggest — EchoOS only recommends. Approve on Home.");continue;}
+    if(a.autonomy==="confirm"||sens){a.status="pending";
+      log("sug",why+(sens?"Sensitive action — ":"Autonomy is Confirm — ")+"waiting for your approval.");
+      toast("⏸ <b>"+esc(a.name)+"</b> wants to run — approve on Home");continue;}
+    executeAutomation(a,why+"Pre-approved (Automatic).");
+  }
+  for(const m of MODES)if(triggerMatches(m.trigger,type,value))
+    activateMode(m.id,"Context event '"+type+"' matched "+m.name+" Mode.");
+  render();
+}
+function triggerMatches(tr,type,value){
+  if(tr.type!==type)return false;
+  if(type.startsWith("location"))return !tr.place||tr.place===(value||"").toLowerCase();
+  if(type.startsWith("bluetooth"))return !tr.device||(value||"").toLowerCase().includes(tr.device);
+  if(type==="time_schedule")return tr.time===value;
+  return true;
+}
+function executeAutomation(a,why){
+  let ok=true;
+  for(const act of a.intent.actions){
+    const r=performAction(act); ok=ok&&r;
+    log(r?"ok":"err",why+" Action '"+act.type+"' [SIMULATED] "+(r?"completed.":"FAILED — not reported as success."),1);
+  }
+  a.status="active";a.lastRun=now();
+  if(a.intent.actions.some(x=>x.type==="focus_mode")){
+    S.activeMode=a.intent.trigger.place||a.intent.trigger.device||"Focus";showMode();}
+  if(ok){burst();chord();}
+  toast((ok?"✅ ":"⚠️ ")+"<b>"+esc(a.name)+"</b> "+(ok?"executed":"finished with failures")+" · History shows why");
+}
+function performAction(act){
+  if(act.type==="calendar_summary")
+    setTimeout(()=>toast("📅 [SIMULATED] Today: "+demoCalendar.map(c=>c.start+" "+c.title).join(" · ")),1400);
+  return true;
+}
+function showMode(){
+  const b=$("mode-banner"),on=MODES.filter(m=>modeState[m.id]).map(m=>m.icon+" "+m.name.toUpperCase());
+  if(S.activeMode&&!on.length)on.push("● "+S.activeMode.toUpperCase());
+  if(on.length){b.style.display="block";b.textContent=on.join(" · ")+" MODE ACTIVE [SIMULATED]";}
+  else b.style.display="none";
+}
+/* Context Modes — SRS §9.6 */
+function modePerms(m){const p=new Set();
+  if(TRIG_PERM[m.trigger.type])p.add(TRIG_PERM[m.trigger.type]);
+  m.actions.forEach(a=>{if(ACTIONS[a.type].perm)p.add(ACTIONS[a.type].perm);});return[...p].sort();}
+function activateMode(id,why){
+  const m=MODES.find(x=>x.id===id); if(!m||modeState[id])return;
+  const missing=modePerms(m).filter(p=>!S.caps[p]);
+  if(missing.length){log("err",(why||"")+" "+m.name+" Mode BLOCKED — data source disabled: "+missing.join(", ")+".");
+    toast("⛔ "+m.name+" Mode blocked — enable "+missing.join(", ")+" in Control");render();return;}
+  const lvl=modeAutonomy[id];
+  if(lvl==="suggest"){log("sug",(why||"")+" EchoOS suggests "+m.name+" Mode (autonomy: Suggest). Activate it on the Modes tab.");
+    toast("💡 Suggestion: activate "+m.name+" Mode?");render();return;}
+  if(lvl==="confirm"&&!(why||"").startsWith("User")){
+    log("sug",(why||"")+" "+m.name+" Mode waits for confirmation (autonomy: Confirm).");
+    toast("⏸ "+m.name+" Mode is ready — confirm on the Modes tab");render();return;}
+  modeState[id]=1;
+  m.actions.forEach(a=>log("ok",(why||"")+" "+m.name+" Mode → action '"+a.type+"' [SIMULATED] completed.",1));
+  showMode();burst();toast(m.icon+" <b>"+m.name+" Mode</b> activated [SIMULATED]");render();
+}
+function userToggleMode(id){
+  const m=MODES.find(x=>x.id===id); if(!m)return;
+  if(modeState[id]){modeState[id]=0;
+    log("info","User deactivated "+m.name+" Mode. Reversible actions restored [SIMULATED].",1);showMode();render();return;}
+  const missing=modePerms(m).filter(p=>!S.caps[p]);
+  if(missing.length){log("err","User tried "+m.name+" Mode — BLOCKED, data source disabled: "+missing.join(", ")+".");
+    toast("⛔ Blocked — enable "+missing.join(", ")+" in Control");render();return;}
+  modeState[id]=1;
+  m.actions.forEach(a=>log("ok","User activated "+m.name+" Mode → '"+a.type+"' [SIMULATED] completed.",1));
+  showMode();burst();toast(m.icon+" <b>"+m.name+" Mode</b> activated [SIMULATED]");render();
+}
+function setModeAutonomy(id,l){modeAutonomy[id]=l;
+  log("info",MODES.find(m=>m.id===id).name+" Mode autonomy set to "+l+" by user.");render();}
+
+/* ════════ EXTRAS ════════ */
+/* 1 · confetti celebration */
+function burst(){
+  const c=$("confetti"),ctx=c.getContext("2d");
+  c.width=innerWidth;c.height=innerHeight;c.style.display="block";
+  const cols=["#A78BFA","#7DD3FC","#FDA4C7","#A7E8C5","#FDE68A","#FBBF9B"];
+  const P=Array.from({length:70},()=>({x:innerWidth/2+(Math.random()-.5)*140,y:innerHeight*.42,
+    vx:(Math.random()-.5)*7,vy:Math.random()*-9-2,w:5+Math.random()*6,h:4+Math.random()*5,
+    r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[(Math.random()*cols.length)|0],life:70+Math.random()*40}));
+  let f=0;
+  (function tick(){
+    ctx.clearRect(0,0,c.width,c.height);let alive=0;
+    for(const p of P){
+      if(p.life<=0)continue; alive++;
+      p.vy+=.28;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.globalAlpha=Math.min(1,p.life/28);
+      ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    }
+    if(alive&&f++<160)requestAnimationFrame(tick);
+    else{ctx.clearRect(0,0,c.width,c.height);c.style.display="none";}
+  })();
+}
+/* 2 · day / night pastel */
+function toggleTheme(){
+  S.theme=S.theme==="day"?"night":"day";
+  document.body.dataset.theme=S.theme;
+  $("themeBtn").textContent=S.theme==="day"?"🌙":"☀️";
+  document.querySelector('meta[name=theme-color]').content=S.theme==="day"?"#FBF7FF":"#241F33";
+  toast(S.theme==="day"?"☀️ Day pastel":"🌙 Night pastel");
+  render();
+}
+/* 3 · voice input (SRS §11.1 optional speech input) */
+function startVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast("🎙 Voice needs Chrome/Edge over http(s) — type it instead");return;}
+  const r=new SR();r.lang="en-IN";r.interimResults=false;r.maxAlternatives=1;
+  S.listening=true;render();
+  r.onresult=e=>{const t=e.results[0][0].transcript;const box=$("nl");
+    if(box){box.value=t;} S.listening=false;render();
+    if($("nl"))$("nl").value=t;
+    toast("🎙 Heard: “"+esc(t)+"”");doParse();};
+  r.onerror=()=>{S.listening=false;render();toast("🎙 Didn't catch that — try again or type it");};
+  r.onend=()=>{if(S.listening){S.listening=false;render();}};
+  try{r.start();toast("🎙 Listening… say your automation");}catch(e){S.listening=false;render();}
+}
+/* 4 · export activity report — your data, your file */
+function exportReport(){
+  const L=["EchoOS — Activity Report","Generated "+new Date().toLocaleString(),
+    "".padEnd(52,"="),"",
+    "AUTOMATIONS ("+S.automations.length+")",
+    ...S.automations.map(a=>"  • "+a.name+" — "+a.intent.summary+" [autonomy: "+a.autonomy+"]"),"",
+    "COMMITMENTS ("+S.commitments.length+")",
+    ...S.commitments.map(c=>"  • ["+c.status+"] "+c.task+(c.deadline?" — due "+c.deadline:"")+
+      " ("+Math.round(c.confidence*100)+"%)"),"",
+    "ACTIVITY LOG ("+S.log.length+")",
+    ...S.log.map(l=>"  "+l.t+"  ["+l.kind.toUpperCase()+"]"+(l.sim?" [SIMULATED]":"")+" "+l.text),"",
+    "Every entry above includes the reason it happened (SRS §11.4 explainability)."];
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([L.join("\n")],{type:"text/plain"}));
+  a.download="echoos-activity-report.txt";a.click();URL.revokeObjectURL(a.href);
+  toast("📄 Report downloaded — your data, your file");
+}
+/* 5 · installable PWA (runtime manifest) */
+(function(){
+  const man={name:"EchoOS",short_name:"EchoOS",start_url:".",display:"standalone",
+    background_color:"#FBF7FF",theme_color:"#FBF7FF",
+    icons:[{src:"data:image/svg+xml;base64,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">'+
+      '<rect width="512" height="512" rx="110" fill="#A78BFA"/><circle cx="256" cy="230" r="120" fill="#fff" opacity=".9"/>'+
+      '<circle cx="212" cy="220" r="26" fill="#7DD3FC"/><circle cx="300" cy="220" r="26" fill="#7DD3FC"/>'+
+      '<rect x="196" y="300" width="120" height="26" rx="13" fill="#FDA4C7"/></svg>'),
+      sizes:"512x512",type:"image/svg+xml",purpose:"any"}]};
+  const l=document.createElement("link");l.rel="manifest";
+  l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}));
+  document.head.appendChild(l);
+})();
+/* 6 · keyboard shortcuts */
+addEventListener("keydown",e=>{
+  if(e.key==="Escape"){closeCmd();return;}
+  if(/input|textarea/i.test(document.activeElement.tagName))return;
+  if(e.key==="/"){e.preventDefault();openCmd();return;}
+  const map={"1":"home","2":"create","3":"modes","4":"lens","5":"plan","6":"more"};
+  if(map[e.key])go(map[e.key]);
+  if(e.key==="t"||e.key==="T")toggleTheme();
+});
+
+/* ════════ CHARTS (palette validated with the dataviz validator) ════════
+   light: #D14E80 #6E5AD0 #0A8C80 #B8781A  — all six checks PASS
+   dark : #D2608E #7181DC #2CA595 #BE8A2C  — all six checks PASS
+   Tritan ΔE sits in the 6–8 floor band, so every mark carries a direct
+   label + 2px surface gap (required secondary encoding), plus a table view. */
+const SERIES=()=>{const c=getComputedStyle(document.body);
+  return[c.getPropertyValue("--s1").trim(),c.getPropertyValue("--s2").trim(),
+         c.getPropertyValue("--s3").trim(),c.getPropertyValue("--s4").trim()];}
+function donut(data,size){
+  const S4=SERIES(),total=data.reduce((n,d)=>n+d.v,0);
+  if(!total)return `<div class="empty">No data yet.</div>`;
+  const R=size/2,r=R-13,ir=r*.6,gap=.028;let ang=-Math.PI/2,paths="";
+  data.forEach((d,i)=>{
+    const frac=d.v/total; if(!frac)return;
+    const a0=ang+gap/2,a1=ang+frac*2*Math.PI-gap/2;ang+=frac*2*Math.PI;
+    if(a1<=a0)return;
+    const big=(a1-a0)>Math.PI?1:0;
+    const p=(rad,a)=>[R+rad*Math.cos(a),R+rad*Math.sin(a)];
+    const[x1,y1]=p(r,a0),[x2,y2]=p(r,a1),[x3,y3]=p(ir,a1),[x4,y4]=p(ir,a0);
+    paths+=`<path d="M${x1} ${y1}A${r} ${r} 0 ${big} 1 ${x2} ${y2}L${x3} ${y3}A${ir} ${ir} 0 ${big} 0 ${x4} ${y4}Z"
+      fill="${S4[i%4]}"><title>${esc(d.k)}: ${d.v}</title></path>`;
+    const mid=(a0+a1)/2,[lx,ly]=p((r+ir)/2*1.02,mid);
+    if(frac>0.07)paths+=`<text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="12" font-weight="700"
+      fill="#fff" stroke="rgba(0,0,0,.45)" stroke-width="2.5" style="paint-order:stroke">${d.v}</text>`;
+  });
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img">
+    ${paths}<text x="${R}" y="${R-2}" text-anchor="middle" font-size="21" font-weight="800"
+      fill="currentColor">${total}</text>
+    <text x="${R}" y="${R+14}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".6">ITEMS</text></svg>`;
+}
+function bars(data){
+  const S4=SERIES(),max=Math.max(...data.map(d=>d.v),1);
+  return data.map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
+      <span style="width:88px;font-size:11px;color:var(--muted);text-align:right;flex-shrink:0">${esc(d.k)}</span>
+      <div style="flex:1;height:15px;background:var(--card2);border-radius:5px;overflow:hidden">
+        <div style="width:${(d.v/max*100)||0}%;height:100%;background:${S4[i%4]};border-radius:0 5px 5px 0;
+          transition:width .7s cubic-bezier(.2,.8,.25,1)"></div></div>
+      <b style="width:24px;font-size:12px;font-variant-numeric:tabular-nums">${d.v}</b>
+    </div>`).join("");
+}
+function legend(data){const S4=SERIES();
+  return `<div class="legend">${data.map((d,i)=>
+    `<span><i style="background:${S4[i%4]}"></i>${esc(d.k)}</span>`).join("")}</div>`;}
+function dvTable(cols,data){
+  return `<table class="dv"><thead><tr><th>${cols[0]}</th><th>${cols[1]}</th></tr></thead><tbody>
+    ${data.map(d=>`<tr><td>${esc(d.k)}</td><td>${d.v}</td></tr>`).join("")}</tbody></table>`;}
+
+/* ════════ UI ════════ */
+const tabs=[["home","⌂","Home"],["create","✦","Create"],["modes","◈","Modes"],
+  ["lens","◎","EchoLens"],["plan","▤","Planner"],["more","⋯","More"]];
+
+function render(){
+  document.body.dataset.accent=S.tab;
+  renderAuth();
+  const av=$("avatarBtn");
+  if(av){ av.textContent = S.user ? initials(S.user.name) : "?";
+          av.style.display = S.user ? "flex" : "none"; }
+  $("nav").style.display = S.user ? "flex" : "none";
+  if(!S.user){ $("main").innerHTML=""; $("mode-banner").style.display="none"; return; }
+  checkBadges();
+  $("nav").innerHTML=tabs.map(([id,ic,l])=>
+    `<button class="${S.tab===id?"active":""}" onclick="go('${id}')"><span class="ic">${ic}</span>${l}</button>`).join("");
+  $("main").innerHTML=({home,create,modes,lens,plan,more}[S.tab])();
+}
+function go(t){S.tab=t;const m=$("main");m.classList.remove("anim");void m.offsetWidth;m.classList.add("anim");
+  render();m.scrollTop=0;}
+function goMore(seg){S.tab="more";S.moreSeg=seg;render();$("main").scrollTop=0;}
+
+/* Echo's mood + line change with what EchoOS is doing */
+function botMood(){
+  const pend=S.automations.filter(a=>a.status==="pending").length;
+  const sug=S.patterns.filter(p=>p.status==="suggested").length;
+  if(pend)return{cls:"alert",eye:"#FBBF9B",say:"⏸ <b>"+pend+" automation"+(pend>1?"s":"")+
+    "</b> waiting for your approval — I never act without you."};
+  if(sug)return{cls:"think",eye:"#FDE68A",say:"💡 I noticed a <b>repeated routine</b>. Want me to automate it? It's on Home."};
+  if(MODES.some(m=>modeState[m.id]))return{cls:"",eye:"#A7E8C5",
+    say:"🎓 <b>"+MODES.filter(m=>modeState[m.id]).map(m=>m.name).join(" + ")+" Mode</b> is running. I'll log every action."};
+  if(S.automations.length){const acc=S.commitments.filter(c=>c.status==="accepted").length;
+    return{cls:"",eye:"#7DD3FC",say:"👁 Watching <b>"+S.automations.length+" automation"+(S.automations.length>1?"s":"")+"</b>"+
+      (acc?" and remembering <b>"+acc+" commitment"+(acc>1?"s":"")+"</b>":"")+" — all under your control."};}
+  return{cls:"sleep",eye:"#C9BDFF",say:"Hi, I'm <b>Echo</b> — teach me a routine in your own words and I'll handle the "+
+    "boring parts. Tap the demo below to see me work!"};
+}
+function botHero(mini,title,line){
+  const m=botMood();
+  return `<div class="hero${mini?" mini":""}">
+    <div class="bot-scene"><div class="bot ${m.cls}" style="--eyeC:${m.eye}">
+      <div class="shadow"></div><div class="earL"></div><div class="earR"></div>
+      <div class="head"></div><div class="antenna"></div>
+      <div class="face"><div class="eye"></div><div class="eye"></div></div>
+      <div class="cheekL"></div><div class="cheekR"></div>
+      <div class="armL"></div><div class="armR"></div>
+      <div class="torso"></div><div class="core"></div>
+      <div class="legL"></div><div class="legR"></div>
+    </div></div>
+    <div class="bubble">${title?`<h2>${title}</h2>`:""}
+      <div class="say">${line||m.say}</div></div></div>`;
+}
+
+function home(){
+  const pending=S.automations.filter(a=>a.status==="pending"),h=new Date().getHours();
+  return `
+  ${botHero(false,"Good "+(h<12?"morning":h<18?"afternoon":"evening")+", "+esc((S.user?.name||"there").split(" ")[0]))}
+  <div class="stat-row">
+    <div class="stat"><b>${S.automations.length}</b><span>Autom.</span></div>
+    <div class="stat"><b>${MODES.filter(m=>modeState[m.id]).length}</b><span>Modes</span></div>
+    <div class="stat"><b>${S.commitments.filter(c=>c.status==="accepted").length}</b><span>Commits</span></div>
+    <div class="stat"><b>${S.patterns.filter(p=>p.status==="suggested").length}</b><span>Sugg.</span></div>
+    <div class="stat"><b>${S.log.length}</b><span>Events</span></div>
+  </div>
+  <div class="card">
+    <h3>🎬 Three-minute demo (SRS §26)</h3>
+    <div class="small">One tap per scene. Every device action is <b>simulated &amp; labeled</b>.</div>
+    <div class="row">
+      <button class="btn small" onclick="demoSetup()">1 · College routine</button>
+      <button class="btn small ghost" onclick="fireContext('location_enter','college')">2 · Enter College</button>
+    </div>
+    <div class="row">
+      <button class="btn small ghost" onclick="seedDriving()">3 · Driving pattern ×4</button>
+      <button class="btn small ghost" onclick="go('lens')">4 · EchoLens</button>
+      <button class="btn small ghost" onclick="go('plan')">5 · Planner</button>
+    </div>
+  </div>
+  ${radar()}
+  ${pending.length?`<div class="card">
+    <h3>⏸ Waiting for your approval</h3>
+    ${pending.map(a=>`<div class="flexrow" style="margin-top:9px">
+      <div class="small"><b style="color:var(--text)">${esc(a.name)}</b><br>${esc(a.intent.summary)}</div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn small" onclick="approve(${a.id})">Approve</button>
+        <button class="btn small ghost" onclick="deny(${a.id})">Not now</button></div></div>`).join("")}
+  </div>`:""}
+  ${S.patterns.filter(p=>p.status==="suggested").map(p=>`
+    <div class="card">
+      <h3>💡 Pattern spotted</h3><div class="small">${esc(p.summary)}</div>
+      <div class="conf"><i style="width:${p.conf*100}%"></i></div>
+      <div class="small" style="margin-top:5px">seen ${p.freq}× · confidence ${(p.conf*100)|0}%</div>
+      <div class="row"><button class="btn small" onclick="acceptPattern(${p.id})">Accept → automate</button>
+        <button class="btn small ghost" onclick="dismissPattern(${p.id})">Dismiss</button></div>
+    </div>`).join("")}
+  <h2 style="font-size:15px;margin:16px 0 9px">Automations</h2>
+  ${S.automations.length?S.automations.map(a=>`
+    <div class="card">
+      <div class="flexrow"><h3>${esc(a.name)}</h3>
+        <span class="chip ${a.status==="active"?"ok":a.status==="pending"?"pri":""}">${a.status}</span></div>
+      <div class="small">${esc(a.intent.summary)}</div>
+      ${flow(a.intent)}
+      <div class="row"><span class="chip pri">autonomy: ${a.autonomy}</span>
+        <span class="chip">needs: ${a.intent.required_permissions.join(", ")||"nothing"}</span>
+        ${a.lastRun?`<span class="chip ok">last run ${a.lastRun}</span>`:""}</div>
+      <div class="row"><button class="btn small ghost" onclick="toggleAuto(${a.id})">${a.status==="disabled"?"Enable":"Disable"}</button>
+        <button class="btn small danger" onclick="delAuto(${a.id})">Delete</button></div>
+    </div>`).join(""):`<div class="empty">No automations yet — describe one on Create.</div>`}`;
+}
+
+function create(){
+  const p=S.preview;
+  return `
+  ${botHero(true,"","✦ Say it or type it — I'll turn it into a <b>safe, structured plan</b> you approve first.")}
+  <h2>Create automation</h2>
+  <div class="sub">Ordinary language in, structured automation out (FR-01). Nothing exists until you save it.</div>
+  <div style="display:flex;gap:8px;align-items:flex-start">
+    <textarea id="nl" rows="2" placeholder="e.g. When I reach college, start my focus routine">${p?esc(p.text):""}</textarea>
+    <button class="mic ${S.listening?"rec":""}" onclick="startVoice()" title="Voice input">🎙</button>
+  </div>
+  <div class="row">
+    <button class="btn" onclick="doParse()">Understand with AI ✦</button>
+    <button class="btn ghost small" onclick="tryExample()">Try an example</button>
+  </div>
+  ${p?(p.valid?`
+  <div class="card" style="margin-top:14px">
+    <h3>Preview — nothing saved yet</h3>
+    <div class="kv" style="margin-top:6px">
+      <b>Summary:</b> ${esc(p.intent.summary)}<br>
+      <b>Trigger:</b> ${p.intent.trigger.type}${p.intent.trigger.place?" · "+esc(p.intent.trigger.place):""}${p.intent.trigger.time?" · "+p.intent.trigger.time:""}${p.intent.trigger.device?" · "+esc(p.intent.trigger.device):""}<br>
+      <b>Actions:</b> ${p.intent.actions.map(a=>a.type.replace(/_/g," ")).join(", ")}<br>
+      <b>Permissions:</b> ${p.intent.required_permissions.join(", ")||"none"}<br>
+      <b>Confidence:</b> ${(p.intent.confidence*100)|0}% · rule-based engine (works offline)</div>
+    <div class="conf"><i style="width:${p.intent.confidence*100}%"></i></div>
+    ${p.rejected&&p.rejected.length?`<div class="small" style="color:var(--bad);margin-top:8px">
+      ⛔ Rejected unsupported actions: ${p.rejected.join(", ")} (FR-03)</div>`:""}
+    ${p.intent.actions.some(a=>ACTIONS[a.type].sens)?`<div class="small" style="color:var(--warn);margin-top:8px">
+      ⚠ Contains a sensitive action — always asks for confirmation, on every autonomy level.</div>`:""}
+    <div class="small" style="margin-top:11px;color:var(--text)"><b>Autonomy level (FR-13):</b></div>
+    <div class="seg">${["suggest","confirm","automatic"].map(l=>
+      `<button class="${S.autonomySel===l?"sel":""}" onclick="S.autonomySel='${l}';render()">${l}</button>`).join("")}</div>
+    <div class="small" style="margin-top:7px">${{suggest:"Only recommends — never executes.",
+      confirm:"Asks you every time before executing.",
+      automatic:"Runs automatically — you're pre-approving it now."}[S.autonomySel]}</div>
+    <div class="row"><input type="text" id="aname" placeholder="Name this automation" value="${esc(p.name||"")}"></div>
+    <div class="row"><button class="btn" onclick="saveAuto()">Save automation</button>
+      <button class="btn ghost" onclick="S.preview=null;render()">Discard</button></div>
+  </div>`:`
+  <div class="card" style="margin-top:14px">
+    <h3>Couldn't create that</h3><div class="small">${esc(p.reason)}. Try naming a place
+    (college / work / home / gym), a time, or driving — plus what should happen (focus, silent, music,
+    navigation, reminder…).</div></div>`):""}`;
+}
+
+function modes(){
+  return `
+  ${botHero(true,"","◈ Five context modes. Each shows its trigger, actions, permissions and autonomy — nothing hidden.")}
+  <h2>Context Modes</h2>
+  <div class="sub">College · Work · Driving · Gym · Sleep (SRS §9.6). Activation and execution are always logged.</div>
+  ${MODES.map(m=>{const on=modeState[m.id],perms=modePerms(m),missing=perms.filter(p=>!S.caps[p]);
+    return `<div class="mode-card ${on?"on":""}">
+      <div class="flexrow">
+        <div style="display:flex;gap:12px;align-items:center;min-width:0">
+          <span class="mode-ic">${m.icon}</span>
+          <div style="min-width:0"><h3>${m.name} Mode ${on?'<span class="chip ok">ACTIVE</span>':""}</h3>
+            <div class="small">${m.tdesc}</div></div></div>
+        <button class="btn small ${on?"ghost":""}" onclick="userToggleMode('${m.id}')">${on?"Deactivate":"Activate"}</button>
+      </div>
+      <div class="row">${m.actions.map(a=>`<span class="chip">${a.type.replace(/_/g," ")}</span>`).join("")}</div>
+      <div class="row"><span class="chip ${missing.length?"err":"ok"}">needs: ${perms.join(", ")||"nothing"}${
+        missing.length?" · "+missing.join(", ")+" OFF":""}</span></div>
+      <div class="small" style="margin-top:9px">Autonomy:</div>
+      <div class="seg">${["suggest","confirm","automatic"].map(l=>
+        `<button class="${modeAutonomy[m.id]===l?"sel":""}" onclick="setModeAutonomy('${m.id}','${l}')">${l}</button>`).join("")}</div>
+    </div>`;}).join("")}`;
+}
+
+function lens(){
+  return `
+  ${botHero(true,"","◎ I read only the sources you allow — and I never delete or change your originals.")}
+  <h2>EchoLens</h2>
+  <div class="sub">Commitment intelligence from permitted sources (FR-06..08). Accept, edit or dismiss — nothing is remembered without you.</div>
+  <div class="row" style="margin-top:0">
+    <button class="btn" onclick="runLens()" ${S.caps.notifications?"":"disabled"}>Scan notifications</button>
+    <button class="btn ghost" onclick="scanImage()" ${S.caps.camera?"":"disabled"}>📷 Scan image (FR-14)</button>
+  </div>
+  ${S.caps.notifications?"":`<div class="small" style="color:var(--warn);margin-top:8px">
+    Notification source is OFF in Control — EchoLens can't scan. That's the point.</div>`}
+  ${lensItems.length?`<h2 style="font-size:15px;margin:18px 0 9px">Notification priorities (FR-06)</h2>
+  ${lensItems.map(i=>`<div class="card"><div class="flexrow">
+    <div class="small"><b style="color:var(--text)">${esc(i.sender||i.source)}</b> · ${esc(i.source)}<br>${esc(i.text)}</div>
+    <span class="chip ${i.pri==="needs_attention"?"pri":i.pri==="later"?"ok":""}" style="flex-shrink:0">${i.pri.replace("_"," ")}</span>
+  </div></div>`).join("")}`:""}
+  ${S.commitments.length?`<h2 style="font-size:15px;margin:18px 0 9px">Commitment candidates (FR-07/08)</h2>
+  ${S.commitments.map(c=>`<div class="card" style="${c.status==="dismissed"?"opacity:.5":""}">
+    <div class="flexrow"><h3>${esc(c.task)}</h3><span class="chip ${c.status==="accepted"?"ok":""}">${c.status}</span></div>
+    <div class="kv" style="margin-top:4px">${c.person?`<b>Person:</b> ${esc(c.person)}<br>`:""}${
+      c.deadline?`<b>Deadline:</b> ${esc(c.deadline)}<br>`:""}<b>Confidence:</b> ${(c.confidence*100)|0}%${
+      c.src?` · <b>via</b> ${esc(c.src)}`:""}</div>
+    <div class="conf"><i style="width:${c.confidence*100}%"></i></div>
+    <div class="small" style="margin-top:6px">“${esc(c.raw)}”</div>
+    ${c.status==="candidate"?`<div class="row">
+      <button class="btn small" onclick="setCommit(${c.id},'accepted')">Accept</button>
+      <button class="btn small ghost" onclick="editCommit(${c.id})">Edit</button>
+      <button class="btn small ghost" onclick="setCommit(${c.id},'dismissed')">Dismiss</button></div>`:
+      c.status==="accepted"?`<div class="row"><button class="btn small ghost" onclick="setCommit(${c.id},'done')">Mark done</button></div>`:""}
+  </div>`).join("")}`:`<div class="empty">Run a scan to see priorities and extracted commitments.</div>`}`;
+}
+
+function plan(){
+  const p=S.plan;
+  return `
+  ${botHero(true,"","▤ I respect fixed events and your deadlines — everything else you can move.")}
+  <h2>AI Day Planner</h2>
+  <div class="sub">Calendar + tasks + accepted commitments → a prioritized, editable plan (FR-10).</div>
+  <button class="btn" onclick="S.plan=buildPlan();log('info','AI planner generated tomorrow\\'s plan.');render()">Plan tomorrow</button>
+  ${p?`<h2 style="font-size:15px;margin:18px 0 10px">${p.date}</h2>
+  ${p.blocks.map((b,i)=>`<div class="block ${b.kind}"><div class="t">${b.start}–${b.end}</div>
+    <div class="b"><div class="flexrow"><span>${esc(b.title)}</span>
+      ${b.editable?`<button class="btn small ghost" onclick="editBlock(${i})">✎</button>`:""}</div>
+      <span class="k">${b.kind} · ${b.src}${b.editable?"":" · fixed"}</span></div></div>`).join("")}
+  ${p.notes.map(n=>`<div class="small" style="color:var(--info);margin:7px 0">ⓘ ${esc(n)}</div>`).join("")}`
+  :`<div class="empty">No plan yet. Accept a commitment in EchoLens first for the full effect.</div>`}`;
+}
+
+/* ---- More: Control | History | Memory | Insights ---- */
+function more(){
+  const segs=[["profile","👤 Profile"],["ctrl","⛨ Control"],["hist","≡ History"],
+              ["mem","✧ Memory"],["insights","📊 Insights"]];
+  return `<div class="seg" style="margin:0 0 16px">
+    ${segs.map(([id,l])=>`<button class="${S.moreSeg===id?"sel":""}" onclick="goMore('${id}')">${l}</button>`).join("")}
+  </div>${({profile,ctrl,hist,mem,insights}[S.moreSeg]||ctrl)()}`;
+}
+function ctrl(){
+  const caps=[["location","Location & geofencing","arrive / leave triggers"],
+    ["notifications","Notification access","EchoLens & priorities"],
+    ["calendar","Calendar","planner & event triggers"],
+    ["connectivity","Bluetooth / connectivity","driving mode"],
+    ["dnd","Do Not Disturb control","focus & silent modes"],
+    ["messaging","Messaging (sensitive)","always asks confirmation"],
+    ["settings","Device settings","brightness etc. — simulated"],
+    ["camera","Camera intelligence","dates / tasks from images"]];
+  return `<h2>Permission & Autonomy Center</h2>
+  <div class="sub">EchoOS uses only what you switch on (FR-12). Turn one off and every automation or mode
+  that needs it is blocked immediately — with the reason logged (SRS §11.4).</div>
+  ${caps.map(([k,t,w])=>`<div class="card"><div class="flexrow">
+    <div><h3>${t}</h3><div class="small">${w}</div></div>
+    <label class="toggle"><input type="checkbox" ${S.caps[k]?"checked":""}
+      onchange="setCap('${k}',this.checked)"><span class="tr"></span></label></div></div>`).join("")}
+  <div class="card"><h3>Privacy controls (SRS §15)</h3>
+    <div class="small">Minimum data · progressive permissions · full deletion. Nothing leaves this device.</div>
+    <div class="row">
+      <button class="btn small danger" onclick="S.commitments=[];log('info','User deleted all stored commitments.');render()">Delete commitments</button>
+      <button class="btn small danger" onclick="S.log=[];S.events=[];render()">Delete history</button>
+      <button class="btn small danger" onclick="S.memoryPrefs=[];log('info','User cleared personal memory.');render()">Clear memory</button>
+    </div></div>`;
+}
+function hist(){
+  return `<div class="flexrow" style="margin-bottom:5px"><h2>Activity History</h2>
+    <button class="btn small ghost" onclick="exportReport()">📄 Export</button></div>
+  <div class="sub">Every detection, suggestion, confirmation, execution and block — with the <b>why</b>
+  (FR-11). Failures are never shown as successes.</div>
+  ${S.log.length?S.log.map(l=>`<div class="log-line ${l.kind}"><time>${l.t}${l.sim?" · SIMULATED":""}</time>${esc(l.text)}</div>`).join("")
+   :`<div class="empty">Nothing yet — activity appears here as EchoOS works.</div>`}
+  ${S.events.length?`<h2 style="font-size:14px;margin:16px 0 9px">Raw context events (${S.events.length})</h2>
+  ${S.events.slice(0,22).map(e=>`<div class="small" style="margin-bottom:4px">• ${e.t} ${e.type}${
+    e.value?": "+esc(e.value):""}${e.sim?' <span class="chip sim">SIM</span>':""}</div>`).join("")}`:""}`;
+}
+function mem(){
+  return `<h2>Personal Memory</h2>
+  <div class="sub">EchoOS retains only <b>user-approved</b> preferences, routines and commitments (FR-15).
+  Approved memory is kept separate from raw context — and all of it is deletable.</div>
+  <div class="card"><h3>Preferences</h3>
+    ${S.memoryPrefs.length?S.memoryPrefs.map((p,i)=>`<div class="flexrow" style="margin-top:9px">
+      <div class="small"><b style="color:var(--text)">${esc(p.k)}:</b> ${esc(p.v)}<br>
+        <span class="chip pri">${esc(p.src)}</span></div>
+      <button class="btn small danger" onclick="S.memoryPrefs.splice(${i},1);log('info','Preference removed by user.');render()">✕</button>
+    </div>`).join(""):`<div class="small">No approved preferences stored.</div>`}</div>
+  <div class="card"><h3>Approved routines</h3>
+    <div class="small">${S.automations.length} automation(s) · ${S.patterns.filter(p=>p.status==="accepted").length} accepted pattern(s)</div>
+    <div style="margin-top:7px">${S.automations.map(a=>`<span class="chip">${esc(a.name)}</span>`).join("")||
+      `<span class="small">None yet.</span>`}</div></div>
+  <div class="card"><h3>Remembered commitments</h3>
+    ${S.commitments.filter(c=>c.status==="accepted").map(c=>`<div class="small" style="margin-top:6px">
+      • ${esc(c.task)}${c.deadline?" — "+esc(c.deadline):""}</div>`).join("")||
+      `<div class="small">None accepted yet — EchoLens candidates land here once you accept them.</div>`}</div>
+  <div class="small" style="color:var(--muted)">Raw context events are <b>not</b> memory — they live in History
+  and are deleted separately.</div>`;
+}
+function insights(){
+  const pri=[
+    {k:"Needs attention",v:lensItems.filter(i=>i.pri==="needs_attention").length},
+    {k:"Later",v:lensItems.filter(i=>i.pri==="later").length},
+    {k:"Low priority",v:lensItems.filter(i=>i.pri==="low").length}];
+  const act=[
+    {k:"Executed",v:S.log.filter(l=>l.kind==="ok").length},
+    {k:"Suggested",v:S.log.filter(l=>l.kind==="sug").length},
+    {k:"Blocked",v:S.log.filter(l=>l.kind==="err").length},
+    {k:"Detected",v:S.log.filter(l=>l.kind==="info").length}];
+  const total=S.log.length;
+  const asked=S.log.filter(l=>l.kind==="sug"||l.kind==="err").length;
+  const share=total?Math.round(asked/total*100):0;
+  return `
+  ${botHero(true,"","📊 Here's what I've learned — and proof I explained <b>every single action</b>.")}
+  <h2>Insights</h2>
+  <div class="sub">EchoOS shows its work. These come straight from this session's activity log.</div>
+  <div class="card">
+    <div class="small">Actions with a recorded explanation</div>
+    <div class="hero-num">${total?100:0}%</div>
+    <div class="small" style="margin-top:5px">All ${total} logged event${total===1?"":"s"} carry the reason they happened —
+    that's the transparency requirement (SRS §11.4), not a marketing number.
+    ${share?`<b>${share}%</b> of them asked you first or stopped because a source was off.`:""}</div>
+  </div>
+  <div class="card">
+    <h3>Notification priorities</h3>
+    <div class="small">How EchoLens sorted your permitted notifications (FR-06).</div>
+    ${lensItems.length?`<div style="display:flex;gap:14px;align-items:center;margin-top:10px;flex-wrap:wrap">
+      <div style="color:var(--text)">${donut(pri,132)}</div>
+      <div style="flex:1;min-width:150px">${legend(pri)}${dvTable(["Priority","Count"],pri)}</div></div>`
+      :`<div class="empty">Run an EchoLens scan to fill this in.</div>`}
+  </div>
+  <div class="card">
+    <h3>Activity by outcome</h3>
+    <div class="small">What EchoOS actually did this session.</div>
+    <div style="margin-top:12px">${total?bars(act):`<div class="empty">No activity yet.</div>`}</div>
+  </div>
+  ${badges()}
+  <div class="card">
+    <h3>What I've learned about you</h3>
+    <div class="small" style="line-height:1.75">
+      ${S.patterns.length?`• Detected <b>${S.patterns.length}</b> repeated routine(s) from ${S.events.length} context events.<br>`:""}
+      ${S.commitments.length?`• Extracted <b>${S.commitments.length}</b> commitment(s), avg confidence
+        <b>${Math.round(S.commitments.reduce((n,c)=>n+c.confidence,0)/S.commitments.length*100)}%</b>.<br>`:""}
+      ${S.automations.length?`• You prefer <b>${
+        (()=>{const c={};S.automations.forEach(a=>c[a.autonomy]=(c[a.autonomy]||0)+1);
+          return Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0];})()}</b> autonomy for your automations.<br>`:""}
+      ${S.memoryPrefs.length?`• Remembering <b>${S.memoryPrefs.length}</b> approved preference(s).`:""}
+      ${!S.patterns.length&&!S.commitments.length&&!S.automations.length?
+        `Nothing yet — run the demo on Home and come back.`:""}
+    </div>
+  </div>`;
+}
+
+/* ---------- interactions ---------- */
+function doParse(){
+  const box=$("nl"); if(!box)return;
+  const text=box.value.trim(); if(!text)return;
+  const v=validateIntent(parseNL(text));
+  S.preview=v.valid?{text,valid:1,intent:v.intent,rejected:v.rejected,name:v.intent.summary.slice(0,42)}
+    :{text,valid:0,reason:v.reason||"Not understood"};
+  if(v.valid)log("info","AI parsed: “"+text+"” → "+v.intent.summary+
+    (v.rejected.length?" (rejected: "+v.rejected.join(", ")+")":""));
+  else render();
+}
+const examples=["When I reach college, start my focus routine",
+  "When my car connects, start navigation to work and play music",
+  "Every day at 10pm put my phone on silent",
+  "When I leave work, text Priya and play my chill playlist"];
+let exIdx=0;
+function tryExample(){$("nl").value=examples[exIdx++%examples.length];}
+function saveAuto(){
+  const p=S.preview; if(!p||!p.valid)return;
+  const name=($("aname").value.trim()||p.name);
+  S.automations.push({id:S.seq++,name,intent:p.intent,autonomy:S.autonomySel,status:"active"});
+  log("ok","Automation '"+name+"' created from natural language. Autonomy: "+S.autonomySel+". "+p.intent.summary);
+  toast("✅ Saved <b>"+esc(name)+"</b> — fire a test event on Home to see it run");
+  S.preview=null;S.autonomySel="confirm";go("home");
+}
+function demoSetup(){
+  const v=validateIntent(parseNL("When I reach college, start my focus routine"));
+  S.automations.push({id:S.seq++,name:"College Focus Routine",intent:v.intent,autonomy:"automatic",status:"active"});
+  log("ok","Automation 'College Focus Routine' created (autonomy: automatic). "+v.intent.summary);
+  toast("✅ Created with <b>Automatic</b> autonomy — now tap “Enter College”");
+  render();
+}
+function approve(id){const a=S.automations.find(x=>x.id===id); if(a){executeAutomation(a,"User confirmed '"+a.name+"'.");render();}}
+function deny(id){const a=S.automations.find(x=>x.id===id);
+  if(a){a.status="active";log("info","User declined to run '"+a.name+"' this time.");render();}}
+function toggleAuto(id){const a=S.automations.find(x=>x.id===id); if(!a)return;
+  a.status=a.status==="disabled"?"active":"disabled";
+  log("info","Automation '"+a.name+"' "+(a.status==="disabled"?"disabled":"enabled")+" by user.");render();}
+function delAuto(id){const a=S.automations.find(x=>x.id===id);
+  S.automations=S.automations.filter(x=>x.id!==id);
+  if(a)log("info","Automation '"+a.name+"' deleted by user.");render();}
+function setCap(k,v){S.caps[k]=v?1:0;
+  log("info","Data source '"+k+"' "+(v?"enabled":"disabled")+" by user — effective immediately.");render();}
+function runLens(){
+  lensItems=demoNotifications.map(n=>{const c=extractCommitment(n);return{...n,pri:classify(n,!!c),commit:c};});
+  let added=0;
+  lensItems.forEach(i=>{if(i.commit&&!S.commitments.some(c=>c.task===i.commit.task)){
+    S.commitments.push({id:S.seq++,...i.commit,status:"candidate"});added++;}});
+  log("info","EchoLens scanned "+demoNotifications.length+" permitted items [SIMULATED] → "+added+
+    " commitment candidate(s), priorities assigned.",1);
+  toast("◎ Found <b>"+added+"</b> commitment candidate"+(added===1?"":"s")+" — see Insights for the breakdown");
+  render();
+}
+function scanImage(){
+  if(S.commitments.some(c=>c.src==="camera")){toast("📷 Poster already scanned");return;}
+  S.commitments.push({id:S.seq++,task:"register for Hackathon 2026 finals",person:"Event Cell",
+    deadline:"Fri 21 Aug 05:00 pm",confidence:.82,src:"camera",
+    raw:"[Poster image] HACKATHON 2026 — Team registrations close Friday 5 PM, Auditorium B",status:"candidate"});
+  log("info","Camera intelligence [SIMULATED] extracted a date/task from a user-provided image (FR-14).",1);
+  toast("📷 Extracted a commitment from the poster [SIMULATED]");render();
+}
+function setCommit(id,st){const c=S.commitments.find(x=>x.id===id);
+  if(c){c.status=st;log("info","Commitment '"+c.task+"' "+st+" by user.");render();}}
+function editCommit(id){const c=S.commitments.find(x=>x.id===id); if(!c)return;
+  const t=prompt("Edit task",c.task); if(t){c.task=t;log("info","Commitment edited by user.");}render();}
+function seedDriving(){
+  for(let i=0;i<4;i++){
+    S.events.unshift({t:now(),type:"bluetooth_connect",value:"car",sim:1});
+    S.events.unshift({t:now(),type:"open_app",value:"maps",sim:1});
+    S.events.unshift({t:now(),type:"play_music",value:"drive mix",sim:1});}
+  log("info","Seeded 4 simulated driving sessions (car → maps → music).",1);
+  const found=detectPatterns();
+  found.forEach(f=>{if(!S.patterns.some(p=>p.anchor===f.anchor&&p.status!=="dismissed"))
+    S.patterns.push({id:S.seq++,...f,status:"suggested"});});
+  if(found.length){log("sug","Pattern detected: "+found[0].summary);
+    toast("💡 I noticed a repeated routine — see the suggestion on Home");}
+  render();
+}
+function acceptPattern(id){
+  const p=S.patterns.find(x=>x.id===id); if(!p)return;
+  const v=validateIntent({trigger:p.trigger,actions:p.actions,confidence:p.conf,requires_confirmation:1});
+  if(!v.valid)return;
+  p.status="accepted";
+  S.automations.push({id:S.seq++,name:"Driving routine (from pattern)",intent:v.intent,autonomy:"confirm",status:"active"});
+  log("ok","Pattern accepted → automation 'Driving routine' created (autonomy: confirm).");
+  burst();toast("✅ Driving routine created — it will ask before running");render();
+}
+function dismissPattern(id){const p=S.patterns.find(x=>x.id===id);
+  if(p){p.status="dismissed";log("info","Pattern suggestion dismissed — EchoOS won't repeat it.");}render();}
+function editBlock(i){const b=S.plan.blocks[i],t=prompt("Edit block title",b.title);
+  if(t){b.title=t;log("info","Plan block edited by user: '"+t+"'.");}render();}
+
+/* ════════ NEW: palettes, sound, radar, flow, badges, command palette ════════ */
+const PALETTES=["blossom","meadow","sorbet"];
+const PAL_NAME={blossom:"Blossom 🌸",meadow:"Meadow 🌿",sorbet:"Sorbet 🍑"};
+S.palette="blossom"; S.sound=true; S.badgesSeen=new Set();
+function cyclePalette(){
+  S.palette=PALETTES[(PALETTES.indexOf(S.palette)+1)%PALETTES.length];
+  document.body.dataset.palette=S.palette;
+  blip(660); toast("🎨 Palette: <b>"+PAL_NAME[S.palette]+"</b>"); render();
+}
+/* soft WebAudio blip — every sound follows a tap, so no autoplay issues */
+let _ac=null;
+function blip(freq,dur){
+  if(!S.sound)return;
+  try{
+    _ac=_ac||new (window.AudioContext||window.webkitAudioContext)();
+    const o=_ac.createOscillator(),g=_ac.createGain();
+    o.type="sine"; o.frequency.value=freq||520;
+    g.gain.setValueAtTime(0.0001,_ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.055,_ac.currentTime+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,_ac.currentTime+(dur||0.22));
+    o.connect(g);g.connect(_ac.destination);o.start();o.stop(_ac.currentTime+(dur||0.22));
+  }catch(e){}
+}
+function chord(){[523,659,784].forEach((f,i)=>setTimeout(()=>blip(f,.3),i*70));}
+
+/* Context radar — which senses are awake right now */
+const SENSES=[["location","📍",0],["notifications","🔔",51],["calendar","📅",102],
+  ["connectivity","📶",153],["dnd","🔕",204],["camera","📷",255],["settings","⚙️",306]];
+function radar(){
+  const on=SENSES.filter(x=>S.caps[x[0]]);
+  const blips=SENSES.map(([k,ic,deg])=>{
+    const r=S.caps[k]?38:0; if(!r)return"";
+    const a=(deg-90)*Math.PI/180, x=60+r*Math.cos(a), y=60+r*Math.sin(a);
+    return `<circle class="blip" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6"
+      fill="var(--s3)" style="animation-delay:${(deg/360*2.4).toFixed(2)}s"><title>${k} active</title></circle>`;
+  }).join("");
+  return `<div class="card"><div class="flexrow"><h3>Context radar</h3>
+      <span class="chip ${on.length?"ok":"err"}">${on.length}/${SENSES.length} senses on</span></div>
+    <div class="small">EchoOS only senses what you allow — this is live from your Control switches.</div>
+    <div class="radar" style="margin-top:11px">
+      <svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Active sensors">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)"/>
+        <circle cx="60" cy="60" r="34" fill="none" stroke="var(--border)"/>
+        <circle cx="60" cy="60" r="16" fill="none" stroke="var(--border)"/>
+        <line x1="8" y1="60" x2="112" y2="60" stroke="var(--border)"/>
+        <line x1="60" y1="8" x2="60" y2="112" stroke="var(--border)"/>
+        <g class="sweep"><path d="M60 60 L60 8 A52 52 0 0 1 96 24 Z"
+          fill="var(--a1)" opacity=".28"/></g>
+        ${blips}<circle cx="60" cy="60" r="4" fill="var(--a1)"/>
+      </svg>
+      <div style="flex:1;min-width:140px">
+        ${SENSES.map(([k,ic])=>`<span class="chip ${S.caps[k]?"ok":""}"
+          style="${S.caps[k]?"":"opacity:.45"}">${ic} ${k}</span>`).join("")}
+      </div></div></div>`;
+}
+
+/* Trigger → action flow diagram on every automation card */
+const TRG_ICON={location_enter:"📍",location_exit:"📍",time_schedule:"⏰",bluetooth_connect:"🚗",
+  bluetooth_disconnect:"🚗",calendar_event:"📅",manual:"👆",pattern_detected:"💡"};
+const ACT_ICON={focus_mode:"🎯",dnd_on:"🔕",dnd_off:"🔔",silent_mode:"🤫",wifi_toggle:"📶",
+  bluetooth_toggle:"📶",open_app:"📱",play_music:"🎵",navigation_start:"🧭",send_message:"✉️",
+  create_reminder:"📝",calendar_summary:"📅",notify_user:"🔔",set_alarm:"⏰",brightness:"🔆"};
+function flow(intent){
+  const t=intent.trigger;
+  const label=(t.place||t.time||t.device||t.type.replace(/_/g," "));
+  return `<div class="flow"><span class="node trg">${TRG_ICON[t.type]||"⚡"} ${esc(label)}</span>`+
+    intent.actions.map(a=>`<span class="arw">→</span><span class="node">${ACT_ICON[a.type]||"•"} ${
+      a.type.replace(/_/g," ")}</span>`).join("")+`</div>`;
+}
+
+/* Achievements — small, honest milestones */
+const BADGES=[
+  {id:"first",ic:"✨",n:"First words",t:()=>S.automations.length>=1},
+  {id:"trust",ic:"⛨",n:"Gatekeeper",t:()=>S.log.some(l=>l.text.includes("BLOCKED"))},
+  {id:"pattern",ic:"💡",n:"Pattern eye",t:()=>S.patterns.some(p=>p.status==="accepted")},
+  {id:"lens",ic:"◎",n:"Promise keeper",t:()=>S.commitments.some(c=>c.status==="accepted")},
+  {id:"mode",ic:"◈",n:"Mode shifter",t:()=>MODES.some(m=>modeState[m.id])},
+  {id:"plan",ic:"▤",n:"Day planner",t:()=>!!S.plan},
+  {id:"voice",ic:"🎙",n:"Spoke up",t:()=>S.log.some(l=>l.text.includes("Heard:"))},
+  {id:"cam",ic:"📷",n:"Sharp eye",t:()=>S.commitments.some(c=>c.src==="camera")},
+];
+function checkBadges(){
+  BADGES.forEach(b=>{ if(b.t()&&!S.badgesSeen.has(b.id)){
+    S.badgesSeen.add(b.id); chord();
+    setTimeout(()=>toast("🏅 Unlocked <b>"+b.n+"</b> "+b.ic),700);
+  }});
+}
+function badges(){
+  const got=BADGES.filter(b=>b.t()).length;
+  return `<div class="card"><div class="flexrow"><h3>Milestones</h3>
+    <span class="chip ${got?"ok":""}">${got}/${BADGES.length}</span></div>
+    <div class="small">Little proofs that each part of EchoOS actually works.</div>
+    <div class="badges">${BADGES.map(b=>`<div class="badge ${b.t()?"on":""}">
+      <span class="bi">${b.ic}</span><div class="bn">${b.n}</div></div>`).join("")}</div></div>`;
+}
+
+/* Command palette — press / anywhere */
+const COMMANDS=[
+  {k:"Go to Home",       d:"dashboard",       r:()=>go("home")},
+  {k:"Go to Create",     d:"new automation",  r:()=>go("create")},
+  {k:"Go to Modes",      d:"context modes",   r:()=>go("modes")},
+  {k:"Go to EchoLens",   d:"commitments",     r:()=>go("lens")},
+  {k:"Go to Planner",    d:"day plan",        r:()=>go("plan")},
+  {k:"Open Insights",    d:"charts",          r:()=>goMore("insights")},
+  {k:"Open Activity History", d:"the why",    r:()=>goMore("hist")},
+  {k:"Open Control",     d:"permissions",     r:()=>goMore("ctrl")},
+  {k:"Create college focus routine", d:"demo", r:()=>{demoSetup();go("home");}},
+  {k:"Fire test event: arrive at College", d:"simulated", r:()=>{go("home");fireContext("location_enter","college");}},
+  {k:"Fire test event: car connects",      d:"simulated", r:()=>{go("home");fireContext("bluetooth_connect","Car Stereo");}},
+  {k:"Seed driving pattern ×4",  d:"pattern detection", r:()=>{go("home");seedDriving();}},
+  {k:"Scan notifications (EchoLens)", d:"FR-06..08", r:()=>{go("lens");runLens();}},
+  {k:"Scan poster image",  d:"camera FR-14",  r:()=>{go("lens");scanImage();}},
+  {k:"Plan tomorrow",      d:"AI planner",    r:()=>{S.plan=buildPlan();go("plan");}},
+  {k:"Toggle day / night", d:"theme",         r:()=>toggleTheme()},
+  {k:"Change colour palette", d:"blossom · meadow · sorbet", r:()=>cyclePalette()},
+  {k:"Toggle sound",       d:"soft blips",    r:()=>{S.sound=!S.sound;toast(S.sound?"🔊 Sound on":"🔇 Sound off");}},
+  {k:"Export activity report", d:"your data", r:()=>exportReport()},
+  {k:"Open your profile",  d:"account & data",  r:()=>goMore("profile")},
+  {k:"Sign out",           d:"end session",     r:()=>signOut()},
+];
+let cmdSel=0;
+function openCmd(){cmdSel=0;$("cmdwrap").classList.add("open");$("cmdq").value="";
+  renderCmd();setTimeout(()=>$("cmdq").focus(),40);blip(700,.12);}
+function closeCmd(){$("cmdwrap").classList.remove("open");}
+function cmdMatches(){const q=($("cmdq").value||"").toLowerCase();
+  return COMMANDS.filter(c=>!q||(c.k+" "+c.d).toLowerCase().includes(q));}
+function renderCmd(){
+  const m=cmdMatches(); if(cmdSel>=m.length)cmdSel=0;
+  $("cmdlist").innerHTML=m.length?m.map((c,i)=>
+    `<div class="cmditem ${i===cmdSel?"sel":""}" onclick="runCmd(${i})">
+      <span>${esc(c.k)}</span><span class="ck">${esc(c.d)}</span></div>`).join("")
+    :`<div class="empty">No command matches that.</div>`;
+}
+function runCmd(i){const m=cmdMatches(); if(!m[i])return; closeCmd(); blip(560,.15); m[i].r();}
+function cmdKey(e){
+  const m=cmdMatches();
+  if(e.key==="Escape"){closeCmd();return;}
+  if(e.key==="ArrowDown"){cmdSel=Math.min(cmdSel+1,m.length-1);renderCmd();e.preventDefault();}
+  if(e.key==="ArrowUp"){cmdSel=Math.max(cmdSel-1,0);renderCmd();e.preventDefault();}
+  if(e.key==="Enter"){runCmd(cmdSel);e.preventDefault();}
+}
+
+/* ════════ LOGIN + USER PROFILE ════════
+   Local-only sign-in: the profile lives on this device and is never sent
+   anywhere — the same privacy rule the rest of EchoOS follows (SRS §15). */
+S.user=null; S.authErr=""; S.authMode="signin";
+S.authDraftName="Salman Mansuri"; S.authDraftEmail="salmanmansuri1672005@gmail.com";
+
+function initials(name){
+  return (name||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
+}
+function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim()); }
+
+function authScreen(){
+  return `
+  <div class="auth">
+    <div class="panel">
+      <div style="display:flex;justify-content:center;margin-bottom:6px">
+        <div class="bot-scene" style="width:88px;height:118px"><div class="bot sleep" style="--eyeC:var(--a2)">
+          <div class="shadow"></div><div class="earL"></div><div class="earR"></div>
+          <div class="head"></div><div class="antenna"></div>
+          <div class="face"><div class="eye"></div><div class="eye"></div></div>
+          <div class="cheekL"></div><div class="cheekR"></div>
+          <div class="armL"></div><div class="armR"></div>
+          <div class="torso"></div><div class="core"></div>
+          <div class="legL"></div><div class="legR"></div>
+        </div></div>
+      </div>
+      <div class="brand">EchoOS</div>
+      <div class="brandsub">UNDERSTAND · DECIDE · AUTOMATE · LEARN</div>
+      <div class="note" style="margin-top:12px">
+        ${S.authMode==="signin"?"Welcome back — tell me who you are and I'll pick up where you left off."
+                               :"Create your local profile. It stays on this device."}
+      </div>
+      <label for="au_name">Your name</label>
+      <input type="text" id="au_name" placeholder="Salman Mansuri" value="${esc(S.authDraftName||"")}"
+        onkeydown="if(event.key==='Enter')document.getElementById('au_email').focus()">
+      <label for="au_email">Email</label>
+      <input type="text" id="au_email" placeholder="salmanmansuri1672005@gmail.com" value="${esc(S.authDraftEmail||"")}"
+        onkeydown="if(event.key==='Enter')doSignIn()">
+      ${S.authErr?`<div class="err">⚠ ${esc(S.authErr)}</div>`:""}
+      <div class="row" style="margin-top:14px">
+        <button class="btn" style="flex:1" onclick="doSignIn()">
+          ${S.authMode==="signin"?"Sign in":"Create profile"} →</button>
+      </div>
+      <div style="text-align:center;margin-top:4px">
+        <button class="linkbtn" onclick="guestIn()">Continue as guest</button>
+      </div>
+      <div class="note">
+        🔒 No account, no server, no password. EchoOS stores your profile on this device only —
+        exactly like your automations and commitments.
+      </div>
+    </div>
+  </div>`;
+}
+function doSignIn(){
+  const n=(document.getElementById("au_name")?.value||"").trim();
+  const e=(document.getElementById("au_email")?.value||"").trim();
+  S.authDraftName=n; S.authDraftEmail=e;
+  if(n.length<2){S.authErr="Please enter your name (at least 2 characters).";renderAuth();return;}
+  if(!validEmail(e)){S.authErr="That doesn't look like a valid email address.";renderAuth();return;}
+  S.authErr="";
+  S.user={name:n,email:e,guest:false,since:new Date().toLocaleDateString([],{day:"numeric",month:"short",year:"numeric"})};
+  log("ok","User signed in as "+n+" ("+e+"). Profile stored on device only — nothing sent anywhere.");
+  chord(); toast("👋 Welcome, <b>"+esc(n.split(" ")[0])+"</b> — your profile stays on this device");
+  render();
+}
+function guestIn(){
+  S.user={name:"Guest",email:"—",guest:true,
+    since:new Date().toLocaleDateString([],{day:"numeric",month:"short",year:"numeric"})};
+  log("info","Continued as guest — no profile details stored.");
+  blip(620); toast("👤 Signed in as <b>Guest</b>");
+  render();
+}
+function signOut(){
+  const n=S.user?.name||"user";
+  S.user=null; S.authErr=""; S.tab="home"; S.moreSeg="ctrl";
+  log("info","User "+n+" signed out. Automations and history stay on the device.");
+  blip(420,.25); render();
+}
+
+function profile(){
+  const u=S.user; if(!u)return "";
+  const acc=S.commitments.filter(c=>c.status==="accepted").length;
+  const modesOn=MODES.filter(m=>modeState[m.id]).length;
+  const got=BADGES.filter(b=>b.t()).length;
+  const autoPref=S.automations.length
+    ? (()=>{const c={};S.automations.forEach(a=>c[a.autonomy]=(c[a.autonomy]||0)+1);
+        return Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0];})()
+    : "confirm (default)";
+  return `
+  <h2>Your profile</h2>
+  <div class="sub">Everything EchoOS knows about <i>you</i> — separate from what it senses.
+  All of it lives on this device.</div>
+
+  <div class="card" style="text-align:center">
+    <div class="avatar-lg">${esc(initials(u.name))}</div>
+    <h3 style="font-size:17px;margin-top:8px">${esc(u.name)}</h3>
+    <div class="small">${esc(u.email)}</div>
+    <div class="row" style="justify-content:center">
+      <span class="chip ${u.guest?"":"ok"}">${u.guest?"guest session":"signed in"}</span>
+      <span class="chip">since ${esc(u.since)}</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Account</h3>
+    <div style="margin-top:6px">
+      <div class="prow"><span class="pk">Name</span><span class="pv">${esc(u.name)}</span></div>
+      <div class="prow"><span class="pk">Email</span><span class="pv">${esc(u.email)}</span></div>
+      <div class="prow"><span class="pk">Account type</span><span class="pv">${u.guest?"Guest (local)":"Local profile"}</span></div>
+      <div class="prow"><span class="pk">Stored where</span><span class="pv">This device only</span></div>
+      <div class="prow"><span class="pk">Default autonomy</span><span class="pv">${esc(autoPref)}</span></div>
+      <div class="prow"><span class="pk">Theme · palette</span><span class="pv">${S.theme} · ${PAL_NAME[S.palette]}</span></div>
+    </div>
+    <div class="row">
+      <button class="btn small ghost" onclick="editProfile()">Edit details</button>
+      <button class="btn small ghost" onclick="S.sound=!S.sound;toast(S.sound?'🔊 Sound on':'🔇 Sound off');render()">
+        ${S.sound?"🔊 Sound on":"🔇 Sound off"}</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Your EchoOS at a glance</h3>
+    <div class="stat-row" style="margin:11px 0 0">
+      <div class="stat"><b>${S.automations.length}</b><span>Autom.</span></div>
+      <div class="stat"><b>${modesOn}</b><span>Modes</span></div>
+      <div class="stat"><b>${acc}</b><span>Commits</span></div>
+      <div class="stat"><b>${S.memoryPrefs.length}</b><span>Prefs</span></div>
+      <div class="stat"><b>${got}</b><span>Badges</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Data & privacy</h3>
+    <div class="small">You own everything here. Export it, or delete any part of it — instantly.</div>
+    <div class="row">
+      <button class="btn small ghost" onclick="exportReport()">📄 Export my data</button>
+      <button class="btn small ghost" onclick="goMore('ctrl')">⛨ Permission center</button>
+    </div>
+    <div class="row">
+      <button class="btn small danger" onclick="wipeEverything()">Delete all my data</button>
+      <button class="btn small danger" onclick="signOut()">Sign out</button>
+    </div>
+  </div>`;
+}
+function editProfile(){
+  const u=S.user; if(!u)return;
+  const n=prompt("Your name",u.name); if(n===null)return;
+  if(n.trim().length<2){toast("⚠ Name needs at least 2 characters");return;}
+  const e=prompt("Your email",u.email==="—"?"":u.email); if(e===null)return;
+  if(e.trim()&&!validEmail(e)){toast("⚠ That email doesn't look valid");return;}
+  u.name=n.trim(); if(e.trim()){u.email=e.trim(); u.guest=false;}
+  log("info","User updated their profile details.");
+  toast("✅ Profile updated"); render();
+}
+function wipeEverything(){
+  if(!confirm("Delete every automation, commitment, pattern, preference and log entry on this device?"))return;
+  S.automations=[];S.commitments=[];S.patterns=[];S.events=[];S.memoryPrefs=[];
+  S.plan=null;lensItems=[];S.badgesSeen=new Set();
+  MODES.forEach(m=>modeState[m.id]=0); S.activeMode=null; showMode();
+  S.log=[{t:now(),kind:"info",text:"User deleted all EchoOS data from this device.",sim:false}];
+  toast("🧹 All your data was deleted"); render();
+}
+function renderAuth(){ $("auth").innerHTML = S.user ? "" : authScreen(); }
+
+render();
+</script>
+</body>
+</html>

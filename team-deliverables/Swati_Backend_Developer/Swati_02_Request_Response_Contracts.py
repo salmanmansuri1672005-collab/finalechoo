@@ -37,7 +37,7 @@ SUPPORTED_ACTIONS: Dict[str, tuple] = {
 
 SENSITIVE_ACTIONS = {a for a, (s, _, _) in SUPPORTED_ACTIONS.items() if s}
 AUTONOMY_LEVELS = ["suggest", "confirm", "automatic"]
-MAX_ACTIONS = 5
+MAX_ACTIONS = 5 
 
 
 # ---------- Structured intent ----------
